@@ -16,13 +16,11 @@ jobs:
     # echo $GITHUB_WORKSPACE
     # 上記のシェルで帰ってくるのは/home/runner/work/odekakekun/odekakekun
     - uses: actions/checkout@v3
-    - name: Build the Docker image
+    - name: Check Directory
       run : | 
             echo $GITHUB_WORKSPACE
-            ls
-      run : ls project/backend
-
+            ls project/backend
 
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file ../../project/backend/Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file /project/backend/Dockerfile --tag my-image-name:$(date +%s)
