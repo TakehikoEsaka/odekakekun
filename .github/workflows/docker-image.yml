@@ -7,10 +7,13 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
+    name : Build
     runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       # echo $GITHUB_WORKSPACE
@@ -43,7 +46,6 @@ jobs:
           push: true
           tags: odekakekun/backend:latest
           context : project/backend
-
         #     cache-from: type=local,src=/tmp/.buildx-cache
         #     cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
