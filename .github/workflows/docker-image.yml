@@ -39,7 +39,7 @@ jobs:
       - 
         name: Build the Docker image
         uses: docker/build-push-action@v4
-          id: build-image
+          # id: build-image
           with:
             push: true
             tags: odekakekun/backend:latest
