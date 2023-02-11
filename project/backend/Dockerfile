@@ -22,6 +22,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 #add entrypoint.sh
+RUN ls
 COPY ./entrypoint.sh .
 RUN chmod +x /usr/src/entrypoint.sh
 
