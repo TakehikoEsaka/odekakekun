@@ -37,21 +37,12 @@ jobs:
       #       ${{ runner.os }}-buildx-
 
       # - 
-      #   name: Build the Docker image
-      #   uses: docker/build-push-action@v4
-      #     with:
-      #       push: true
-      #       tags: odekakekun/backend:latest
-      #       context : project/backend
-
-      -
-        name: Build and push
+        name: Build the Docker image
         uses: docker/build-push-action@v4
         with:
-          context: "{{defaultContext}}:mysubdir"
           push: true
-          tags: user/app:latest
-
+          tags: odekakekun/backend:latest
+          context : project/backend
 
         #     cache-from: type=local,src=/tmp/.buildx-cache
         #     cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
