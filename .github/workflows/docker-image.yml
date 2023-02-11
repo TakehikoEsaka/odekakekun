@@ -36,13 +36,23 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-buildx-
 
-      - 
-        name: Build the Docker image
+      # - 
+      #   name: Build the Docker image
+      #   uses: docker/build-push-action@v4
+      #     with:
+      #       push: true
+      #       tags: odekakekun/backend:latest
+      #       context : project/backend
+
+      -
+        name: Build and push
         uses: docker/build-push-action@v4
-          with:
-            push: true
-            tags: odekakekun/backend:latest
-            context : project/backend
+        with:
+          context: "{{defaultContext}}:mysubdir"
+          push: true
+          tags: user/app:latest
+
+
         #     cache-from: type=local,src=/tmp/.buildx-cache
         #     cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
