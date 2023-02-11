@@ -13,17 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # echo $GITHUB_WORKSPACE
-    # 上記のシェルで帰ってくるのは/home/runner/work/odekakekun/odekakekun
-    - uses: actions/checkout@v3
-    - name: Check Directory
-      run : | 
-            echo $GITHUB_WORKSPACE
-            ls project/backend
+      # echo $GITHUB_WORKSPACE
+      # 上記のシェルで帰ってくるのは/home/runner/work/odekakekun/odekakekun
+      - 
+        uses: actions/checkout@v3
+      - 
+        name: Check Directory
+        run : | 
+              echo $GITHUB_WORKSPACE
+              ls project/backend
 
-    - uses: docker/build-push-action@v4
-    - name: Build the Docker image
-      with:
-        push: true
-        tags: odekakekun/backend:latest
-        context : project/backend
+      - 
+        name: Build the Docker image
+        uses: docker/build-push-action@v4
+          with:
+            push: true
+            tags: odekakekun/backend:latest
+            context : project/backend
