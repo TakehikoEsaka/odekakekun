@@ -17,8 +17,7 @@ jobs:
       contents: read
 
     steps:
-      # echo $GITHUB_WORKSPACE
-      # 上記のシェルで帰ってくるのは/home/runner/work/odekakekun/odekakekun
+      # echo $GITHUB_WORKSPACE -> /home/runner/work/odekakekun/odekakekun
       - 
         uses: actions/checkout@v3
       - 
