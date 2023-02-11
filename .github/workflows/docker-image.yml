@@ -21,6 +21,9 @@ jobs:
             echo $GITHUB_WORKSPACE
             ls project/backend
 
-    - uses: actions/checkout@v3
+    - uses: docker/build-push-action@v4
     - name: Build the Docker image
-      run: docker build . --file /home/runner/work/odekakekun/odekakekun/project/backend/Dockerfile --tag my-image-name:$(date +%s)
+      with:
+        push: true
+        tags: odekakekun/backend:latest
+        context : project/backend
