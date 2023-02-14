@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  ECR_REGISTRY: 76670744896.dkr.ecr.ap-northeast-1.amazonaws.com # ECRレジストリURL
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com # ECRレジストリURL
   ECR_REPOSITORY: odekakekun-ecr # ECRリポジトリ名
 
 jobs:
