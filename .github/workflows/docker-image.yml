@@ -42,7 +42,7 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::766707448964:role/odekakekun-role
+          role-to-assume: arn:aws:iam::766707448964:policy/github-actions-ecr-push
           aws-region: ap-northeast-1
 
       - 
