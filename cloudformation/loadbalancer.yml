@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create ECS Task Test
+
+Parameters:
+  VpcId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
+
+  PublicSubnetAId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PublicSubnetAId
+
+  PublicSubnetCId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PublicSubnetCId
+
+Resources:
+  ########################################################
+  ###  Internet ALB
+  ########################################################
+  TestInternetAlb:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: "internet-alb"
+      Tags:
+        - Key: Name
+          Value: "internet-alb"
+        - Key: "access_logs.s3.bucket"
+          Value: "test-s3b-alb-logs"
+      SecurityGroups:
+        - !Ref ELBSecurityGroup
+      Subnets:
+        - !Ref PublicSubnetAId
+        - !Ref PublicSubnetCId
+
+  TestAlbListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref TestTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref TestInternetAlb
+      Port: 80
+      Protocol: HTTP
+
+  ########################################################
+  ###  Target Group
+  ########################################################
+  TestTargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      VpcId: !Ref VpcId
+      Name: "target-group"
+      Protocol: HTTP
+      Port: 80
+      TargetType: ip
+
+  ########################################################
+  ### Security Group for ELB!Ref
+  ########################################################
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ELB Security Group
+      VpcId: !Ref VpcId
+      GroupName: elb-security-group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+
+Outputs:
+  TestTargetGroup:
+    Value: !Ref TestTargetGroup
+    Export:
+      Name: TestTargetGroup
+
+  TestAlbListener:
+    Value: !Ref TestAlbListener
+    Export:
+      Name: TestAlbListener
