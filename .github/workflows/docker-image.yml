@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  ECR_REGISTRY: public.ecr.aws/${{ secrets.AWS_ECR }} # ECRレジストリURL
-  ECR_REPOSITORY: odekakekun-ecr # ECRリポジトリ名
 
 jobs:
   build:
@@ -42,7 +39,7 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-region: us-east-1
+          aws-region: ap-northeast-1
 
       - 
         name : Login to ECR
@@ -54,7 +51,7 @@ jobs:
         name: Build the Docker image
         uses: docker/build-push-action@v4
         with:
-          push: true
+          push: false
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           context : project/backend
           cache-from: type=local,src=/tmp/.buildx-cache
