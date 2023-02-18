@@ -1,32 +1,164 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Create ECS Task Test
+Description: Create ECS Task 
+
+Parameters:
+  VpcId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
+
+  PublicSubnetAId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PublicSubnetAId
+
+  PublicSubnetCId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PublicSubnetCId
+
+  TargetGroup:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/TargetGroup
+
+  #ECSTaskName
+  ECSClusterName:
+    Type: String
+    Default: "odekakekun-cluster"
+
+  #ECSTaskName
+  ECSTaskName:
+    Type: String
+    Default: "odekakekun-backend-task"
+
+  #ECSServiceName
+  ECSServiceName:
+    Type: String
+    Default: "odekakekun-backend_service"
+
+  #ECSContainerName
+  ECSContainerName:
+    Type: String
+    Default: "odekakekun-backend-container"
+
+  ECSImageName:
+    Type: String
+    Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
 Resources:
   ########################################################
   ### ECS Cluster
   ########################################################
-  TestEcsCluster:
+  ECSCluster:
     Type: "AWS::ECS::Cluster"
     Properties:
-      ClusterName: "odekakekun-cluster"
+      ClusterName: !Ref ECSClusterName
 
   ########################################################
   ###  ECS LogGroup
   ########################################################
-  TestEcsLogGroup:
+  ECSLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
       LogGroupName: "/ecs/logs/ecs-group"
 
+  ########################################################
+  ###  ECS Task Execution Role
+  ########################################################
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "ECSTaskExecutionRolePolicy"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  ########################################################
+  ###  ECS TaskDefinition
+  ########################################################
+  ECSTaskDefinition:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      Cpu: 256
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      Family: !Ref ECSTaskName
+      Memory: 512
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+
+     #ContainerDefinitions
+      ContainerDefinitions:
+        - Name: !Ref ECSContainerName
+          Image: !Ref ECSImageName
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref ECSLogGroup
+              # AWSの既に定義されてる環境変数のようなものを引っ張ってこれる
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: odekakekun
+          MemoryReservation: 128
+          PortMappings:
+            - HostPort: 80
+              Protocol: tcp
+              ContainerPort: 80
+
+  ########################################################
+  ### Security Group for ECS Service
+  ########################################################
+  ECSSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ECS Service Security Group
+      VpcId: !Ref VpcId
+      GroupName: ecs-service-security-group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+
+  ########################################################
+  ###  ECS ServieDefinition
+  ########################################################
+  ECSService:
+    Type: AWS::ECS::Service
+    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
+    # DependsOn: ALBListener
+    Properties:
+      Cluster: !Ref ECSCluster
+      DesiredCount: 1
+      LaunchType: FARGATE
+      LoadBalancers:
+        -
+          TargetGroupArn: !Ref TargetGroup
+          ContainerPort: 80
+          ContainerName: !Ref ECSContainerName
+      NetworkConfiguration:
+       AwsvpcConfiguration:
+           AssignPublicIp: ENABLED
+           SecurityGroups:
+             - !Ref ECSSecurityGroupId
+           Subnets:
+             - !Ref PublicSubnetAId
+             - !Ref PublicSubnetCId
+      ServiceName: !Ref ECSServiceName
+      TaskDefinition: !Ref ECSTaskDefinition
+
 
 Outputs:
-  TestEcsCluster:
-    Value: !Ref TestEcsCluster
+  ECSCluster:
+    Value: !Ref ECSCluster
     Export:
-      Name: TestEcsCluster
+      Name: ECSCluster
 
-  TestEcsLogGroup:
-    Value: !Ref TestEcsLogGroup
+  ECSLogGroup:
+    Value: !Ref ECSLogGroup
     Export:
-      Name: TestEcsLogGroup
+      Name: ECSLogGroup
 
