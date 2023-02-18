@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com # ECRレジストリURL
+  ECR_REPOSITORY: odekakekun-ecr # ECRリポジトリ名
 
 jobs:
   build:
@@ -43,9 +46,8 @@ jobs:
 
       - 
         name : Login to ECR
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.ECR_REGISTRY }}
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - 
         name: Build the Docker image
