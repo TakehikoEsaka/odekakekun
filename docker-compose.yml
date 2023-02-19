@@ -2,6 +2,17 @@
 version: '3.8'
 
 services:
+  frontend:
+    build:
+      context: ./project/frontend
+      dockerfile: Dockerfile
+    image : odekakekun-frontend
+    container_name: odekakekun-frontend_container
+    volumes:
+      - ./project/frontend:/usr/src/
+    ports:
+      - 80:3000
+
   backend:
     build:
       context: ./project/backend
