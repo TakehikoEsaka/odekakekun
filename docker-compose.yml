@@ -9,11 +9,12 @@ services:
     image : odekakekun-frontend
     container_name: odekakekun-frontend_container
     networks:
-      odekakekun-net
+      - odekakekun-net
     volumes:
       - ./project/frontend:/usr/src/
     ports:
       - 80:3000
+    # command: /bin/sh -c "while :; do sleep 10; done"
 
   backend:
     build:
@@ -22,13 +23,11 @@ services:
     image : odekakekun-backend
     container_name: odekakekun-backend_container
     networks:
-      odekakekun-net
+      - odekakekun-net
     volumes:
       - ./project/backend:/usr/src/
     ports:
       - 8000:80
 
 networks:
-  default:
-    external:
-      name: odekakekun-net
+  odekakekun-net:
