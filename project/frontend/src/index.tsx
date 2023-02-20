@@ -5,15 +5,13 @@ import { ChakraProvider } from "@chakra-ui/react";
 import theme from "../src/styles/style";
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
+ReactDOM.render(
   <ChakraProvider theme={theme}>
     <RecoilRoot>
       <App />
     </RecoilRoot>
-  </ChakraProvider>
+  </ChakraProvider>,
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
