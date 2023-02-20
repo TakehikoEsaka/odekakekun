@@ -76,15 +76,14 @@ export const WishVariables = (props: PropType) => {
         </FormControl>
 
         {/* 選択時にiphoneのキーボードが出ないようにしたい。inputProps={{ readOnly: true }}をつける必要があるけど難しいな。。*/}
-        <FormControl p={3} inputFocusOnClick={false} isReadOnly={true}>
+        <FormControl p={3} isReadOnly={true}>
           <FormLabel>時間</FormLabel>
           <Grid
             templateColumns="repeat(5, 1fr)"
             gap={4}
             alignItems="center"
-            isReadOnly={true}
           >
-            <GridItem colSpan={4} isReadOnly={true}>
+            <GridItem colSpan={4}>
               <Select placeholder="1時間">
                 {hourOptions.map((option) => (
                   <option value={option.label}>{option.label}</option>

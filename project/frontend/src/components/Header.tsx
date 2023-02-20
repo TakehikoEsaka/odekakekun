@@ -16,7 +16,7 @@ export const Header = (props: PropType) => {
 
   const trySuggest = () => {
     // Reactの基本だけど子どもから親のstateを書き換えれる
-    props.getSuggest();
+    props.getSuggest("test");
   };
 
   return (
