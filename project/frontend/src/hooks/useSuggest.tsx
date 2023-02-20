@@ -20,7 +20,7 @@ export const useSuggest = (): SuggestHookReturnType => {
 
   const getSuggest = (wishVariables : string) => {
     axios
-      .get("https://jsonplaceholder.typicode.com/todos/")
+      .get("http://odekakekun-backend_container/suggest&query=test")
       // Axiosのresponceの型はAxiosResponse型をimportして使う
       .then((res: AxiosResponse<Array<TodoType>>) => {
         console.log(wishVariables);
