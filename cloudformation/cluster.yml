@@ -28,7 +28,7 @@ Parameters:
     Type: String
     Default: "odekakekun-frontend-service"
 
-  ECFrontEndTaskName:
+  ECSFrontEndTaskName:
     Type: String
     Default: "odekakekun-backend-task"
 
@@ -116,7 +116,7 @@ Resources:
     Properties:
       Cpu: 256
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
-      Family: !Ref ECSTaskName
+      Family: !Ref ECSFrontEndTaskName
       Memory: 512
       NetworkMode: awsvpc
       RequiresCompatibilities:
@@ -174,7 +174,7 @@ Resources:
   PrivateDnsNamespace:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
     Properties:
-      Vpc: "sample-vpc"
+      Vpc: !Ref VpcId
       Name: "odekakekun-local"
 
   ServiceDiscovery:
@@ -197,7 +197,7 @@ Resources:
     Properties:
       Cpu: 256
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
-      Family: !Ref ECSTaskName
+      Family: !Ref ECSBackEndTaskName
       Memory: 512
       NetworkMode: awsvpc
       RequiresCompatibilities:
