@@ -4,6 +4,10 @@ import random
 
 app = FastAPI()
 
+@app.get("/")
+def Hello():
+    return {"Hello":"World!"}
+
 @app.get("/ping")
 def pong():
     print('health endpoint')
