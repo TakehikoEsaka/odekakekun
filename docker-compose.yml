@@ -7,7 +7,7 @@ services:
       context: ./project/frontend
       dockerfile: Dockerfile
     image : odekakekun-frontend
-    container_name: odekakekun-frontend_container
+    container_name: odekakekun-frontend-container
     networks:
       - odekakekun-net
     volumes:
@@ -21,7 +21,7 @@ services:
       context: ./project/backend
       dockerfile: Dockerfile
     image : odekakekun-backend
-    container_name: odekakekun-backend_container
+    container_name: odekakekun-backend-container
     networks:
       - odekakekun-net
     volumes:
