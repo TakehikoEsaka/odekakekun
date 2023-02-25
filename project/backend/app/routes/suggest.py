@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from hashing import Hash
 import random
 import string
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent))
 
 # pathlib対応する
-from .. import schemas
-from .. import models
-from .. import get_db
+import schemas
+import models
+from database import get_db
 
 router = APIRouter()
 

@@ -1,17 +1,13 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-import schemas
+from fastapi import FastAPI
 from models import Base
-import models
-from database import engine, sessionLocal
-from sqlalchemy.orm import Session
-from hashing import Hash
-import random
-import string
+from database import engine
 
 app = FastAPI()
 
-# from routes import suggest
-# app.include_router(suggest) 
+from routes.suggest import router as suggest_router
+from routes.login import router as login_router
+app.include_router(suggest_router)
+app.include_router(login_router)
 
 Base.metadata.create_all(engine)    
 
