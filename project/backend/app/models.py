@@ -2,6 +2,13 @@ from fastapi import FastAPI
 from database import Base
 from sqlalchemy import Column, String, Integer
 
+class Suggest(Base):
+    __tablename__ = "suggestion"
+
+    id = Column(Integer, primary_key=True, index=True)
+    question = Column(String)
+    answer = Column(String)
+
 class UserInfo(Base):
     __tablename__ = "userinfo"
 
