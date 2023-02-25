@@ -1,13 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from hashing import Hash
-import random
-import string
-
-# pathlib対応する
-from .. import schemas
-from .. import models
-from .. import get_db
+import schemas
+import models
+import access_token
+from database import get_db
 
 router = APIRouter()
 
@@ -29,12 +26,14 @@ def create_user(request: schemas.UserInfo, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-@router.get("/login", tags = ["user"])
+@router.post("/login", tags = ["user"])
 def login(request: schemas.UserInfo, db: Session = Depends(get_db)):
     userinfo = db.query(models.UserInfo).filter(models.UserInfo.email == request.email).first()
     if not userinfo:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"invalid credentials")
     
-    if not Hash.verify(userinfo.password, request.email):
+    if Hash.verify(request.email, userinfo.password):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Incorrect password")
-    return userinfo
+    
+    token = access_token.create_access_token(data = {"sub" : request.email})
+    return {"token" : token, "token_type" : "bearer"}
