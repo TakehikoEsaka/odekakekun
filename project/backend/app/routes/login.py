@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from hashing import Hash
 import schemas
 import models
-import access_token
+import oauth2
 from database import get_db
 
 router = APIRouter()
@@ -32,8 +32,15 @@ def login(request: schemas.UserInfo, db: Session = Depends(get_db)):
     if not userinfo:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"invalid credentials")
     
-    if Hash.verify(request.email, userinfo.password):
+    print(request.password)
+    print(userinfo.password)
+
+    if Hash.verify(request.password, userinfo.password):
+        print("wrong")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Incorrect password")
     
-    token = access_token.create_access_token(data = {"sub" : request.email})
-    return {"token" : token, "token_type" : "bearer"}
+    print("correct")
+    # token = access_token.create_access_token(data = {"sub" : request.email})
+    # return {"token" : token, "token_type" : "bearer"}
+
+    return 

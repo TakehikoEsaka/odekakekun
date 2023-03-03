@@ -6,3 +6,4 @@ tortoise-orm==0.17.4
 uvicorn==0.14.0
 cryptography==39.0.1
 paramiko=3.0.0
+python-multipart=0.0.6
