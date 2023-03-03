@@ -6,7 +6,8 @@ import {
   GridItem,
   Button,
   Flex,
-  Select
+  Select,
+  useMediaQuery,
 } from "@chakra-ui/react";
 // import Select from "../hooks/ChakraReactSelect";
 
@@ -23,13 +24,13 @@ const wayOptions: OPtions[] = [
   { value: "red", label: "車" },
   { value: "green", label: "徒歩" },
   { value: "yellow", label: "バス" },
-  { value: "purple", label: "自転車" }
+  { value: "purple", label: "自転車" },
 ];
 
 const hourOptions: OPtions[] = [
   { value: "2時間", label: "2時間" },
   { value: "1時間", label: "1時間" },
-  { value: "30分", label: "30分" }
+  { value: "30分", label: "30分" },
 ];
 
 type PropType = {
@@ -43,11 +44,14 @@ export const WishVariables = (props: PropType) => {
     props.getSuggest(wishVariables);
   };
 
+  const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
+
   return (
     <>
       <Grid
         // ここはレスポンシブで列の数を変えておく対応させておく
         templateColumns={{ base: "repeat(1, 1fr)", lg: "repeat(3, 1fr)" }}
+        px={isLargerThanLG ? "16" : "6"}
       >
         <FormControl p={4}>
           <FormLabel>場所</FormLabel>
@@ -78,11 +82,7 @@ export const WishVariables = (props: PropType) => {
         {/* 選択時にiphoneのキーボードが出ないようにしたい。inputProps={{ readOnly: true }}をつける必要があるけど難しいな。。*/}
         <FormControl p={3} isReadOnly={true}>
           <FormLabel>時間</FormLabel>
-          <Grid
-            templateColumns="repeat(5, 1fr)"
-            gap={4}
-            alignItems="center"
-          >
+          <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
             <GridItem colSpan={4}>
               <Select placeholder="1時間">
                 {hourOptions.map((option) => (
