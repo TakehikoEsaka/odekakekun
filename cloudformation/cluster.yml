@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Create ECS Task 
+Description: Create ECS Task
 
 Parameters:
   VpcId: # 受け取る値を定義する
@@ -30,7 +30,7 @@ Parameters:
 
   ECSFrontEndTaskName:
     Type: String
-    Default: "odekakekun-backend-task"
+    Default: "odekakekun-frontend-task"
 
   ECSFrontEndContainerName:
     Type: String
@@ -57,6 +57,11 @@ Parameters:
     Type: String
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
+  # LogGroup
+  ECSLogGroupName:
+    Type: String
+    Default: "/ecs/logs/ecs-group"
+
 Resources:
   ########################################################
   ### ECS Cluster
@@ -72,7 +77,7 @@ Resources:
   ECSLogGroup:
     Type: "AWS::Logs::LogGroup"
     Properties:
-      LogGroupName: "/ecs/logs/ecs-group"
+      LogGroupName: !Ref ECSLogGroupName
 
   ########################################################
   ###  ECS Task Execution Role
@@ -102,10 +107,10 @@ Resources:
       VpcId: !Ref VpcId
       GroupName: ecs-service-security-group
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
 
   # FrontEnd
   ########################################################
@@ -122,7 +127,7 @@ Resources:
       RequiresCompatibilities:
         - FARGATE
 
-     #ContainerDefinitions
+      #ContainerDefinitions
       ContainerDefinitions:
         - Name: !Ref ECSFrontEndContainerName
           Image: !Ref ECSFrontEndImageName
@@ -152,18 +157,17 @@ Resources:
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
       LoadBalancers:
-        -
-          TargetGroupArn: !Ref TargetGroup
+        - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
           ContainerName: !Ref ECSFrontEndContainerName
       NetworkConfiguration:
-       AwsvpcConfiguration:
-           AssignPublicIp: ENABLED
-           SecurityGroups:
-             - !Ref ECSSecurityGroupId
-           Subnets:
-             - !Ref PublicSubnetAId
-             - !Ref PublicSubnetCId
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref ECSSecurityGroupId
+          Subnets:
+            - !Ref PublicSubnetAId
+            - !Ref PublicSubnetCId
       ServiceName: !Ref ECSFrontEndServiceName
       TaskDefinition: !Ref ECSFrontEndTaskDefinition
 
@@ -203,7 +207,7 @@ Resources:
       RequiresCompatibilities:
         - FARGATE
 
-     #ContainerDefinitions
+      #ContainerDefinitions
       ContainerDefinitions:
         - Name: !Ref ECSBackEndContainerName
           Image: !Ref ECSBackEndImageName
@@ -235,18 +239,17 @@ Resources:
       ServiceRegistries:
         - RegistryArn: !GetAtt ServiceDiscovery.Arn
       LoadBalancers:
-        -
-          TargetGroupArn: !Ref TargetGroup
+        - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
           ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
-       AwsvpcConfiguration:
-           AssignPublicIp: "DISABLED"
-           SecurityGroups:
-             - !Ref ECSSecurityGroupId
-           Subnets:
-             - !Ref PublicSubnetAId
-             - !Ref PublicSubnetCId
+        AwsvpcConfiguration:
+          AssignPublicIp: "DISABLED"
+          SecurityGroups:
+            - !Ref ECSSecurityGroupId
+          Subnets:
+            - !Ref PublicSubnetAId
+            - !Ref PublicSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition
 
@@ -260,4 +263,3 @@ Outputs:
     Value: !Ref ECSLogGroup
     Export:
       Name: ECSLogGroup
-
