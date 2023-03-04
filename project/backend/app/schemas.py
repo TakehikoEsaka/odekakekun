@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Union
 from pydantic import BaseModel
 
 class UserInfo(BaseModel):
@@ -9,5 +9,5 @@ class Token(BaseModel):
     access_token : str
     token_type : str
 
-# class TokenData(BaseModel):
-#     email : Optional(str) = None
+class TokenData(BaseModel):
+    email: Union[str, None] = None

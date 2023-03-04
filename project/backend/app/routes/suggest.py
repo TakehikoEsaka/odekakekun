@@ -13,6 +13,7 @@ import models
 from database import get_db
 from oauth2 import oauth2_scheme, create_access_token
 from hashing import Hash
+import oauth2
 
 router = APIRouter()
 
@@ -35,11 +36,11 @@ def suggest(question : str, db: Session = Depends(get_db)):
     return new_suggest
 
 @router.get("/get_all_suggest", tags = ["suggest"])
-def get_suggest(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
     suggests = db.query(models.Suggest).all()
     return suggests
 
-@router.post('/token')
+@router.post('/token', response_model=schemas.Token)
 def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.UserInfo).filter(models.UserInfo.email == request.username).first()
 
@@ -48,13 +49,6 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Invalid credentials'
         )
-    
-    # 現象
-    # loginのHash.verifyはrequest.passwordとuser.passwordが以下と全く同じなのにこちらは通らない
-    # 公式のsampleコードではtokenにemailとpasswordを設定するだけでauthorizeのリクエストが通った
-    # 引数の形の問題・jwt側の認証の問題
-    print(request.password)
-    print(user.password)
 
     if not Hash.verify(request.password, user.password):
         raise HTTPException(
