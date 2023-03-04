@@ -3,15 +3,11 @@ from sqlalchemy.orm import Session
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 import random
 import string
-import sys
-from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parent))
 
-# pathlib対応する
 import schemas
 import models
 from database import get_db
-from oauth2 import oauth2_scheme, create_access_token
+from oauth2 import create_access_token
 from hashing import Hash
 import oauth2
 

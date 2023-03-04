@@ -1,12 +1,12 @@
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   frontend:
     build:
       context: ./project/frontend
       dockerfile: Dockerfile
-    image : odekakekun-frontend
+    image: odekakekun-frontend
     container_name: odekakekun-frontend_container
     networks:
       - odekakekun-net
@@ -20,7 +20,7 @@ services:
     build:
       context: ./project/backend
       dockerfile: Dockerfile
-    image : odekakekun-backend
+    image: odekakekun-backend
     container_name: odekakekun-backend_container
     networks:
       - odekakekun-net
@@ -28,6 +28,7 @@ services:
       - ./project/backend:/usr/src/
     ports:
       - 8000:80
+    command: /bin/sh -c "while :; do sleep 10; done"
 
 networks:
   odekakekun-net:

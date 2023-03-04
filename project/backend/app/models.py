@@ -1,4 +1,3 @@
-from fastapi import FastAPI
 from database import Base
 from sqlalchemy import Column, String, Integer
 
