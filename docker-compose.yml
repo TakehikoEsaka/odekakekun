@@ -7,11 +7,11 @@ services:
       context: ./project/frontend
       dockerfile: Dockerfile
     image: odekakekun-frontend
-    container_name: odekakekun-frontend_container
+    container_name: odekakekun-frontend-container
     networks:
       - odekakekun-net
     volumes:
-      - ./project/frontend:/usr/src/
+      - ./project/frontend:/app/src/
     ports:
       - 80:3000
     # command: /bin/sh -c "while :; do sleep 10; done"
@@ -21,14 +21,14 @@ services:
       context: ./project/backend
       dockerfile: Dockerfile
     image: odekakekun-backend
-    container_name: odekakekun-backend_container
+    container_name: odekakekun-backend-container
     networks:
       - odekakekun-net
     volumes:
       - ./project/backend:/usr/src/
     ports:
       - 8000:80
-    command: /bin/sh -c "while :; do sleep 10; done"
+    # command: /bin/sh -c "while :; do sleep 10; done"
 
 networks:
   odekakekun-net:
