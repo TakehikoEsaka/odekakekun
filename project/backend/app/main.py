@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+# from fastapi.middleware.cors import CORSMiddleware
 
 import sys
 from pathlib import Path
@@ -9,6 +10,16 @@ from routes.suggest import router as suggest_router
 from routes.login import router as login_router
 
 app = FastAPI()
+
+# フロントエンドからのリクエストを受け入れるために、CORSを設定する
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
 app.include_router(suggest_router)
 app.include_router(login_router)
 
@@ -16,4 +27,4 @@ Base.metadata.create_all(engine)
 
 @app.get("/")
 def pong():
-    return "for health check"
+    return "for health check !!"

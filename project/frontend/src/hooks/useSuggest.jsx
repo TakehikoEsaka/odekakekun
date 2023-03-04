@@ -1,6 +1,6 @@
-// import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useState } from "react";
-import axios from "../AxiosBaseService";
+// import axios from "../AxiosBaseService";
 
 export const useSuggest = () => {
   // stateに型を定義するのはこうする

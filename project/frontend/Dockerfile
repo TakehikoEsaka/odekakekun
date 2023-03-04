@@ -15,4 +15,6 @@ COPY . .
 # set yarn log level to verbose
 ENV YARN_LOG_LEVEL=verbose
 
+ENV PORT 3000
+
 CMD ["yarn", "start"]
