@@ -12,4 +12,7 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
+# set yarn log level to verbose
+ENV YARN_LOG_LEVEL=verbose
+
 CMD ["yarn", "start"]

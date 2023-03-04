@@ -18,14 +18,16 @@ export const useSuggest = (): SuggestHookReturnType => {
   // stateに型を定義するのはこうする
   const [suggest, setSuggest] = useState<string>("Smple Suggest from Chat-GPT");
 
-  const getSuggest = (wishVariables : string) => {
+  const getSuggest = (wishVariables: string) => {
+    // : AxiosResponse<Array<TodoType>>
+    console.log("hi");
     axios
-      .get("https://jsonplaceholder.typicode.com/todos/")
+      .get("http://odekakekun-backend-container:80")
       // Axiosのresponceの型はAxiosResponse型をimportして使う
-      .then((res: AxiosResponse<Array<TodoType>>) => {
+      .then((res) => {
         console.log(wishVariables);
 
-        var id = 0;   
+        var id = 0;
         if (typeof wishVariables === "undefined") {
           id = Math.floor(Math.random() * 100);
         } else {
