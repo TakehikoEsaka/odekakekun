@@ -1,5 +1,5 @@
 // 型ファイルがないと怒られる時は@typesを入れておく
-import { TopView } from "../components/TopView";
+import { Header } from "../components/Header";
 import { WishVariables } from "../components/WishVariables";
 import { Results } from "../components/Results";
 import { useSuggest } from "../hooks/useSuggest";
@@ -10,7 +10,7 @@ export const Home = () => {
 
   return (
     <>
-      <TopView getSuggest={getSuggest} />
+      <Header getSuggest={getSuggest} />
       <WishVariables getSuggest={getSuggest} />
       <Results suggest={suggest} />
     </>
