@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+
 import random
 import string
+from typing import Optional
+import pandas as pd
 
 import schemas
 import models
 from database import get_db
-from oauth2 import create_access_token
-from hashing import Hash
 import oauth2
 
 router = APIRouter()
@@ -21,40 +21,29 @@ def get_suggest(db: Session, email : str):
     return suggests
 
 @router.post("/suggest", tags = ["suggest"])
-def suggest(question : str, db: Session = Depends(get_db)):
+def suggest(question : str, current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
     # ここでanswerをchat-gptからget
     answer = "".join(random.choice(string.ascii_lowercase) for i in range(10))
+    new_suggest = models.Suggest(user_id = current_user.user_id, question = question, answer = answer)
 
-    new_suggest = models.Suggest(question = question, answer = answer)
-    db.add(new_suggest)
-    db.commit()
-    db.refresh(new_suggest)
+    # ログインしている時はDBに追加・そうでない時は追加しない
+    if current_user:
+        db.add(new_suggest)
+        db.commit()
+        db.refresh(new_suggest)
+
     return new_suggest
 
 @router.get("/get_all_suggest", tags = ["suggest"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
-    suggests = db.query(models.Suggest).all()
-    return suggests
-
-@router.post('/token', response_model=schemas.Token)
-def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.UserInfo).filter(models.UserInfo.email == request.username).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Invalid credentials'
-        )
-
-    if not Hash.verify(request.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Incorrect password'
-        )
+    user = db.query(models.UserInfo).filter(models.UserInfo.user_id == current_user.user_id).first()
     
-    access_token = create_access_token(data={'sub': user.email})
+    df = pd.DataFrame(["question" , "answer"])
+    print(df.columns)
+    
+    for s in user.suggestions:
+        df = df.append({"question": s.question}, ignore_index=True)
+        df = df.append({"answer": s.answer}, ignore_index=True)
 
-    return {
-        'access_token': access_token,
-        'token_type': 'bearer'
-    }
+    print(df)
+    return None

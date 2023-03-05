@@ -10,7 +10,8 @@ import models
 import schemas
 from database import get_db
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+# authorizeをoptionalにする時につける
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 SECRET_KEY ="6f978666cf23294cea2d486a5a6fc17f9b368dac153cdc011fc01fa11703b419"
 ALGORITHM = "HS256"
@@ -27,29 +28,26 @@ def create_access_token(data: dict, expire_delta : Optional[timedelta] = None):
     return encoded_jwt
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Colud not validate credentials',
-        headers={'WWW-Authenticate': "Bearer"}
-    )
+    if token is not None:
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Colud not validate credentials',
+            headers={'WWW-Authenticate': "Bearer"}
+        )
 
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        email: str = payload.get("sub")
-        if email is None:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+            email: str = payload.get("sub")
+            if email is None:
+                raise credentials_exception
+        except JWTError:
             raise credentials_exception
-        
-        token_data = schemas.TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-    user = db.query(models.UserInfo).filter(models.UserInfo.email == token_data.email).first()
-    if user is None:
-        raise credentials_exception
-    return user
-    
+        current_user = db.query(models.UserInfo).filter(models.UserInfo.email == schemas.TokenData(email=email).email).first()
+        if current_user is None:
+            raise credentials_exception
+        return current_user
+    else:
+        return None
 
 async def get_current_active_user(current_user: schemas.UserInfo = Depends(get_current_user)):
-    # のちのちの実装でユーザーの削除機能をroot権限でつけれるようにしたい 
-    # if current_user.disabled:
-    #     raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
