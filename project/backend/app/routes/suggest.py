@@ -24,26 +24,24 @@ def get_suggest(db: Session, email : str):
 def suggest(question : str, current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
     # ここでanswerをchat-gptからget
     answer = "".join(random.choice(string.ascii_lowercase) for i in range(10))
-    new_suggest = models.Suggest(user_id = current_user.user_id, question = question, answer = answer)
 
     # ログインしている時はDBに追加・そうでない時は追加しない
     if current_user:
+        new_suggest = models.Suggest(user_id = current_user.user_id, question = question, answer = answer)
         db.add(new_suggest)
         db.commit()
         db.refresh(new_suggest)
 
-    return new_suggest
+    return answer
 
 @router.get("/get_all_suggest", tags = ["suggest"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
+    
+    
     user = db.query(models.UserInfo).filter(models.UserInfo.user_id == current_user.user_id).first()
     
-    df = pd.DataFrame(["question" , "answer"])
-    print(df.columns)
-    
+    df = pd.DataFrame(columns=["question", "answer"])
     for s in user.suggestions:
-        df = df.append({"question": s.question}, ignore_index=True)
-        df = df.append({"answer": s.answer}, ignore_index=True)
+        df = df.append({"question": s.question, "answer": s.answer}, ignore_index=True)
 
-    print(df)
-    return None
+    return df.to_dict(orient="records")
