@@ -1,14 +1,14 @@
 import ReactDOM from "react-dom";
-import { App } from "./App";
 import { RecoilRoot } from "recoil";
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "../src/styles/style";
 import reportWebVitals from "./reportWebVitals";
+import { RouteConfig } from "./RouteConfig";
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <RecoilRoot>
-      <App />
+      <RouteConfig />
     </RecoilRoot>
   </ChakraProvider>,
   document.getElementById("root")
