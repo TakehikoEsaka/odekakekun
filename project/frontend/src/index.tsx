@@ -3,7 +3,7 @@ import { App } from "./App";
 import { RecoilRoot } from "recoil";
 import { ChakraProvider } from "@chakra-ui/react";
 import theme from "../src/styles/style";
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>
