@@ -8,25 +8,26 @@ import {
   Input,
   Stack,
   Container,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import axios, { AxiosResponse } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
-  const [email, setEmail] = useState("sfa@gmail.com");
-  const [password, setPassword] = useState("fasd");
+  const [email, setEmail] = useState("string@gmail.com");
+  const [password, setPassword] = useState("string");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("defaut error message");
-
-  // const formData = new FormData();
-  // // OAuth2 expects form data, not JSON data
-  // formData.append("username", email);
-  // formData.append("password", password);
+  const [error, setError] = useState("");
+  const [redirectTo, setRedirectTo] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     console.log("hi");
     event.preventDefault();
     setIsLoading(true);
 
+    // OAuth2はJSONではなくform dataを使うので注意
     const formData = new FormData();
     formData.append("username", email);
     formData.append("password", password);
@@ -35,20 +36,31 @@ export const Login = () => {
     axios
       .post("http://localhost:80/token", formData)
       .then((response) => {
-        // 成功時の処理
         console.log(response);
+        localStorage.setItem("access_token", response.data.access_token);
+        setRedirectTo("/home");
       })
       .catch((error) => {
-        // エラー時の処理
-        console.log(error);
+        // ここにstateを無限ループしないように対応を入れる
+        setError("メールアドレスまたはパスワードが違います");
       });
 
     setIsLoading(false);
+
+    // リダイレクト先が設定されている場合、リダイレクトする
+    if (redirectTo) {
+      navigate(redirectTo);
+    }
   };
 
   return (
-    <Container display="flex" justifyContent="center" alignItems="center">
-      <Box>
+    <Container
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Box display="flex">
         <form onSubmit={handleSubmit}>
           <Stack spacing={3}>
             <FormControl isRequired>
@@ -72,10 +84,6 @@ export const Login = () => {
               />
               <FormErrorMessage>{error}</FormErrorMessage>
             </FormControl>
-
-            {error && <p>{error}</p>}
-            <p>{email}</p>
-            <p>{password}</p>
             <Button
               type="submit"
               colorScheme="blue"
@@ -87,6 +95,12 @@ export const Login = () => {
           </Stack>
         </form>
       </Box>
+      {error && (
+        <Alert status="error" marginTop={3} size="xs">
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
     </Container>
   );
 };
