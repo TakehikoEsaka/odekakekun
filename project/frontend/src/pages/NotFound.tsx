@@ -11,12 +11,14 @@ export const NotFound = () => {
           </Box>
         </Container>
         <Container textAlign="center">
-          <Box>
-            <Text as="u" color="blue">
-              <Link to="home">こちら</Link>
-            </Text>
-            から質問ができます
-          </Box>
+          <Link to="home">
+            <Box>
+              <Text as="u" color="blue">
+                こちら
+              </Text>
+              から質問ができます
+            </Box>
+          </Link>
         </Container>
       </VStack>
     </>

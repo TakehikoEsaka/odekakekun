@@ -11,9 +11,12 @@ export const LoginHeader = () => {
       p={4}
       px={isLargerThanLG ? "16" : "6"}
     >
-      <Box fontWeight="bold" fontSize="xl">
-        <Link to="/">おでかけ君</Link>
-      </Box>
+      <Link to="/">
+        <Box fontWeight="bold" fontSize="xl">
+          おでかけ君
+        </Box>
+      </Link>
+
       <Spacer />
     </Flex>
   );

@@ -11,13 +11,19 @@ export const TopHeader = () => {
       p={4}
       px={isLargerThanLG ? "16" : "6"}
     >
-      <Box fontWeight="bold" fontSize="xl">
-        <Link to="/">おでかけ君</Link>
-      </Box>
+      <Link to="/">
+        <Box fontWeight="bold" fontSize="xl">
+          おでかけ君
+        </Box>
+      </Link>
+
       <Spacer />
-      <Button colorScheme="blue" variant="solid">
-        <Link to="login">ログイン</Link>
-      </Button>
+
+      <Link to="login">
+        <Button colorScheme="blue" variant="solid">
+          ログイン
+        </Button>
+      </Link>
     </Flex>
   );
 };
