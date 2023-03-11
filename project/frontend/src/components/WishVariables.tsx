@@ -10,12 +10,15 @@ import {
 } from "@chakra-ui/react";
 // import Select from "../hooks/ChakraReactSelect";
 
-// できればばreact-hook-formを使いたい
-// import { useController } from "react-hook-form";
-
 interface OPtions {
   value: string;
   label: string;
+}
+
+interface FormValues {
+  Place: string;
+  hour: string;
+  way: string;
 }
 
 const wayOptions: OPtions[] = [
@@ -53,25 +56,11 @@ export const WishVariables = (props: PropType) => {
           <FormLabel>場所</FormLabel>
           <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
             <GridItem colSpan={4}>
-              <Input placeholder="地名/駅名" defaultValue="近く" />
+              <Input placeholder="地名/駅名" defaultValue="高円寺" />
             </GridItem>
             <GridItem colSpan={1} color="blackAlpha.700">
-              にある
+              から
             </GridItem>
-          </Grid>
-        </FormControl>
-
-        <FormControl p={3}>
-          <FormLabel>交通手段</FormLabel>
-          <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
-            <GridItem colSpan={4}>
-              <Select placeholder="Select option">
-                {wayOptions.map((option) => (
-                  <option value={option.label}>{option.label}</option>
-                ))}
-              </Select>
-            </GridItem>
-            <GridItem colSpan={1}>を使って</GridItem>
           </Grid>
         </FormControl>
 
@@ -80,13 +69,27 @@ export const WishVariables = (props: PropType) => {
           <FormLabel>時間</FormLabel>
           <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
             <GridItem colSpan={4}>
-              <Select placeholder="1時間">
+              <Select placeholder="30分">
                 {hourOptions.map((option) => (
                   <option value={option.label}>{option.label}</option>
                 ))}
               </Select>
             </GridItem>
-            <GridItem colSpan={1}>以内でいける</GridItem>
+            <GridItem colSpan={1}>以内</GridItem>
+          </Grid>
+        </FormControl>
+
+        <FormControl p={3}>
+          <FormLabel>交通手段</FormLabel>
+          <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
+            <GridItem colSpan={4}>
+              <Select placeholder="自転車">
+                {wayOptions.map((option) => (
+                  <option value={option.label}>{option.label}</option>
+                ))}
+              </Select>
+            </GridItem>
+            <GridItem colSpan={1}>でいける</GridItem>
           </Grid>
         </FormControl>
       </Grid>
@@ -97,7 +100,7 @@ export const WishVariables = (props: PropType) => {
           colorScheme="blue"
           onClick={trySuggest}
         >
-          探す
+          おすすめの場所を探す
         </Button>
       </Flex>
     </>

@@ -42,8 +42,8 @@ export const TopView = (props: PropType) => {
         </Text>
 
         <Text mb="6" fontSize={isLargerThanLG ? "lg" : "base"} opacity={0.7}>
-          場所・交通手段・所要時間を入れて <br />
-          好みを指定するだけで行きたい場所が簡単に見つかる！
+          場所・所要時間・交通手段を指定するだけで <br />
+          行きたい場所が簡単に見つかる！
         </Text>
 
         <Button
