@@ -8,6 +8,11 @@ import { loginState } from "../store/loginState";
 export const TopHeader = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
 
+  const tryLogout = () => {
+    localStorage.removeItem("access_token");
+    window.location.reload();
+  };
+
   return (
     <Flex
       as="header"
@@ -24,11 +29,17 @@ export const TopHeader = () => {
 
       <Spacer />
 
-      <Link to="login">
-        <Button colorScheme="blue" variant="solid">
-          {useRecoilValue(loginState) === true ? "ログアウト" : "ログイン"}
+      {useRecoilValue(loginState) === true ? (
+        <Button variant="solid" onClick={tryLogout}>
+          ログアウト
         </Button>
-      </Link>
+      ) : (
+        <Link to="login">
+          <Button colorScheme="blue" variant="solid">
+            ログイン
+          </Button>
+        </Link>
+      )}
     </Flex>
   );
 };
