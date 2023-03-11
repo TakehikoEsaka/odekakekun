@@ -10,7 +10,7 @@ import models
 import schemas
 from database import get_db
 
-# authorizeをoptionalにする時につける
+# ログインしている時としていない時でAPIを共通化するためにauthorizeをoptionalにする
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 SECRET_KEY ="6f978666cf23294cea2d486a5a6fc17f9b368dac153cdc011fc01fa11703b419"
@@ -28,6 +28,7 @@ def create_access_token(data: dict, expire_delta : Optional[timedelta] = None):
     return encoded_jwt
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    print("token is ", token)
     if token is not None:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
