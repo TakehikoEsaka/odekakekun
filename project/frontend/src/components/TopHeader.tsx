@@ -21,7 +21,7 @@ export const TopHeader = () => {
       p={4}
       px={isLargerThanLG ? "16" : "6"}
     >
-      <Link to="/">
+      <Link to="/home" replace>
         <Box fontWeight="bold" fontSize="xl">
           おでかけ君
         </Box>
@@ -34,7 +34,7 @@ export const TopHeader = () => {
           ログアウト
         </Button>
       ) : (
-        <Link to="login">
+        <Link to="/login" replace>
           <Button colorScheme="blue" variant="solid">
             ログイン
           </Button>
