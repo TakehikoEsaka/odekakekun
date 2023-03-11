@@ -1,29 +1,37 @@
-import { Flex, Box, Button } from "@chakra-ui/react";
-import { useState } from "react";
+import {
+  Flex,
+  Box,
+  List,
+  Button,
+  ListItem,
+  UnorderedList,
+  ListIcon,
+} from "@chakra-ui/react";
+import { useState, useEffect } from "react";
+
+import { FaWalking, FaTrain, MdPedalBike, FaBus } from "react-icons/fa";
 
 export const Histories = (props) => {
-  const [listItems, setListItems] = useState([]);
-
   const token = localStorage.getItem("access_token");
 
   const tryHistories = () => {
-    histories = props.getHistories(token);
+    console.log(props.histories);
+    props.getHistories(token);
+    console.log(props.histories[0].answer);
   };
-
-  // const listItems = items.map((item) => <li key={item.toString()}>{item}</li>);
 
   return (
     <Flex justifyContent="center" p={6}>
-      <Box width="80vw" height="20vh" color="gray.600">
-        {props.histories}
-      </Box>
       <Button onClick={tryHistories}>get histories</Button>
-
-      <ul>
-        {histories.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
+      <List>
+        {props.histories &&
+          props.histories.map((item) => (
+            <ListItem key={item}>
+              <ListIcon as={FaWalking} color="green.500" />
+              {item.answer}
+            </ListItem>
+          ))}
+      </List>
     </Flex>
   );
 };
