@@ -5,6 +5,10 @@ export const useSuggest = () => {
   // stateに型を定義するのはこうする
   const [suggest, setSuggest] = useState("Smple Suggest from Chat-GPT");
 
+  const token = localStorage.getItem("access_token")
+    ? localStorage.getItem("access_token")
+    : "None";
+
   const getSuggest = async (question) => {
     await axios
       .post("http://localhost:80/suggest", null, {
@@ -13,7 +17,7 @@ export const useSuggest = () => {
         },
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${token}`,
           accept: "application/json",
         },
       })

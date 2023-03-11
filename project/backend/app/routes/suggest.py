@@ -24,16 +24,12 @@ def get_suggest(db: Session, email : str):
 def suggest(question : str, current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
     # ここでanswerをchat-gptからget
     answer = "".join(random.choice(string.ascii_lowercase) for i in range(10))
-
-    print("starts")
     # ログインしている時はDBに追加・そうでない時は追加しない
     if current_user:
-        print("youre logined")
         new_suggest = models.Suggest(user_id = current_user.user_id, question = question, answer = answer)
         db.add(new_suggest)
         db.commit()
         db.refresh(new_suggest)
-        print("put into DB")
 
     return answer
 

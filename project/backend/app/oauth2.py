@@ -28,8 +28,8 @@ def create_access_token(data: dict, expire_delta : Optional[timedelta] = None):
     return encoded_jwt
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    print("token is ", token)
-    if token is not None:
+    # フロントからのデータのもらい方は要改善
+    if token != "None":
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Colud not validate credentials',
