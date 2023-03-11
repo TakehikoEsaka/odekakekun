@@ -13,6 +13,8 @@ import {
 } from "@chakra-ui/react";
 import axios, { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { loginState } from "../store/loginState";
 
 export const Login = () => {
   const [email, setEmail] = useState("string@gmail.com");
@@ -21,6 +23,7 @@ export const Login = () => {
   const [error, setError] = useState("");
   const [redirectTo, setRedirectTo] = useState(null);
   const navigate = useNavigate();
+  const [login, setLogin] = useRecoilState(loginState);
 
   const handleSubmit = async (event) => {
     console.log("hi");
@@ -38,6 +41,7 @@ export const Login = () => {
       .then((response) => {
         console.log(response);
         localStorage.setItem("access_token", response.data.access_token);
+        setLogin(true);
         setRedirectTo("/home");
       })
       .catch((error) => {

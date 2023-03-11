@@ -1,8 +1,13 @@
 import { Box, Flex, Spacer, Button, useMediaQuery } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { loginState } from "../store/loginState";
+
+// import { UserContext } from "../providers/UserProvider";
 
 export const TopHeader = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
+
   return (
     <Flex
       as="header"
@@ -21,7 +26,7 @@ export const TopHeader = () => {
 
       <Link to="login">
         <Button colorScheme="blue" variant="solid">
-          ログイン
+          {useRecoilValue(loginState) === true ? "ログアウト" : "ログイン"}
         </Button>
       </Link>
     </Flex>
