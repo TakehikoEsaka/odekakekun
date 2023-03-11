@@ -10,3 +10,4 @@ node_modules/
 *.so
 *.db
 *.DS_STORE
+*.log
