@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 
 export const useHistories = () => {
-  const [histories, setHistories] = useState("Histories here");
+  const [histories, setHistories] = useState();
 
   const getHistories = async (token) => {
     console.log(token);
@@ -12,8 +12,8 @@ export const useHistories = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      setHistories(response.data);
       console.log(response.data);
-      return response.data;
     } catch (error) {
       console.error(error);
     }
