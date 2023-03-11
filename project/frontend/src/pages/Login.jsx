@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -25,36 +25,36 @@ export const Login = () => {
   const navigate = useNavigate();
   const [login, setLogin] = useRecoilState(loginState);
 
+  // Stateが更新されたタイミングで実行を行うようにする
+  useEffect(() => {
+    navigate(redirectTo);
+  }, [redirectTo]);
+
   const handleSubmit = async (event) => {
-    console.log("hi");
     event.preventDefault();
     setIsLoading(true);
-
     // OAuth2はJSONではなくform dataを使うので注意
     const formData = new FormData();
     formData.append("username", email);
     formData.append("password", password);
 
     // ここで投げるLoginの型が違うのか認証が通らない
-    axios
-      .post("http://localhost:80/token", formData)
-      .then((response) => {
-        console.log(response);
-        localStorage.setItem("access_token", response.data.access_token);
-        setLogin(true);
-        setRedirectTo("/home");
-      })
-      .catch((error) => {
-        // ここにstateを無限ループしないように対応を入れる
-        setError("メールアドレスまたはパスワードが違います");
-      });
+    try {
+      const response = await axios
+        .post("http://localhost:80/token", formData)
+        .catch((error) => {
+          // ここにstateを無限ループしないように対応を入れる
+          setError("メールアドレスまたはパスワードが違います");
+        });
+
+      localStorage.setItem("access_token", response.data.access_token);
+      setLogin(true);
+      setRedirectTo("/home");
+    } catch (e) {
+      console.log(e);
+    }
 
     setIsLoading(false);
-
-    // リダイレクト先が設定されている場合、リダイレクトする
-    if (redirectTo) {
-      navigate(redirectTo);
-    }
   };
 
   return (
