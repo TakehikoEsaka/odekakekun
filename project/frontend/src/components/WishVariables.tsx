@@ -48,8 +48,6 @@ export const WishVariables = (props: PropType) => {
   const [question, setQuestion] = useRecoilState(questionState);
 
   const trySuggest = (data: FormValues) => {
-    // ここでreact-hook-formで染めれてないからちょっと辛い。。
-
     const { place, hour, way } = data;
     setQuestion({ place: place, hour: hour, way: way });
     const sentence = `${question.place}から${question.hour}以内で${question.way}を使っていけるおすすめの場所を探してください`;

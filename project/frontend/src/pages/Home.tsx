@@ -14,12 +14,15 @@ export const Home = () => {
   // 質問：型ファイルはここにも記載するべきなのか、そもそも子どものファイルと親ファイルのどちらにも記載する必要があるのか
   const { getSuggest, suggest } = useSuggest();
   const { getHistories, histories } = useHistories();
+  const [showResults, setShowResults] = useState(true);
 
   return (
     <>
       <TopView getSuggest={getSuggest} />
       <WishVariables getSuggest={getSuggest} />
-      <Results suggest={suggest} />
+
+      {/* ここをgetSuggestした時にshowResultsのON/OFFを入れる */}
+      {showResults && <Results />}
 
       {useRecoilValue(loginState) === true ? (
         <Histories getHistories={getHistories} histories={histories} />
