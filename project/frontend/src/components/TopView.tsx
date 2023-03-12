@@ -21,7 +21,7 @@ export const TopView = (props: PropType) => {
 
   return (
     <Flex
-      alignItems="start"
+      alignItems="center" // 縦方向に揃える
       // backgroundPosition="center"
       // backgroundRepeat="no-repeat"
       backgroundColor="#f7f5f4"
@@ -58,12 +58,9 @@ export const TopView = (props: PropType) => {
           まずは試してみる
         </Button>
       </Box>
-      <Flex
-        w={isLargerThanLG ? "10%" : "20%"}
-        // alignItems="center"
-        // justifyContent="center"
-      >
+      <Flex w={isLargerThanLG ? "10%" : "20%"} justifyContent="center">
         <Image
+          boxSize="100%"
           alt="walking man gif"
           src="https://media2.giphy.com/media/ZIu85AaVBfGKmgDreB/giphy.gif?cid=ecf05e477vjzk73sxyfodfknh4uvt93zzoo9zzuf2tzq3x2y&rid=giphy.gif&ct=s"
         ></Image>
