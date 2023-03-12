@@ -8,8 +8,10 @@ import {
   Flex,
   Select,
 } from "@chakra-ui/react";
-// import Select from "../hooks/ChakraReactSelect";
 import { useForm } from "react-hook-form";
+import { useRecoilState } from "recoil";
+
+import { questionState } from "../store/questionState";
 
 interface OPtions {
   value: string;
@@ -34,6 +36,7 @@ const hourOptions: OPtions[] = [
   { value: "2時間", label: "2時間" },
   { value: "1時間", label: "1時間" },
   { value: "30分", label: "30分" },
+  { value: "15分", label: "15分" },
 ];
 
 type PropType = {
@@ -42,16 +45,16 @@ type PropType = {
 
 export const WishVariables = (props: PropType) => {
   const { register, handleSubmit } = useForm<FormValues>();
+  const [question, setQuestion] = useRecoilState(questionState);
 
   const trySuggest = (data: FormValues) => {
     // ここでreact-hook-formで染めれてないからちょっと辛い。。
 
     const { place, hour, way } = data;
-    console.log("data is ", data);
-    console.log("hour is ", hour);
-    const question = `${place}から${hour}以内で${way}を使っていけるおすすめの場所を探してください`;
-    console.log(question);
-    props.getSuggest(question);
+    setQuestion({ place: place, hour: hour, way: way });
+    const sentence = `${question.place}から${question.hour}以内で${question.way}を使っていけるおすすめの場所を探してください`;
+    console.log(sentence);
+    props.getSuggest(sentence);
   };
 
   return (
@@ -67,7 +70,7 @@ export const WishVariables = (props: PropType) => {
               <GridItem colSpan={4}>
                 <Input
                   placeholder="地名/駅名"
-                  defaultValue="高円寺"
+                  defaultValue={question.place}
                   {...register("place")}
                 />
               </GridItem>
@@ -82,11 +85,7 @@ export const WishVariables = (props: PropType) => {
             <FormLabel>時間</FormLabel>
             <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
               <GridItem colSpan={4}>
-                <Select
-                  placeholder="30分"
-                  defaultValue="30分"
-                  {...register("hour")}
-                >
+                <Select defaultValue={question.hour} {...register("hour")}>
                   {hourOptions.map((option) => (
                     <option key={option.label} value={option.label}>
                       {option.label}
@@ -103,9 +102,8 @@ export const WishVariables = (props: PropType) => {
             <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
               <GridItem colSpan={4}>
                 <Select
-                  placeholder="自転車"
                   // react-hook-formにdefaultのvalueを設定しておく必要がある
-                  defaultValue="自転車"
+                  defaultValue={question.way}
                   {...register("way")}
                 >
                   {wayOptions.map((option) => (
