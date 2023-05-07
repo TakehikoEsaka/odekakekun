@@ -1,9 +1,8 @@
 import { Box, Flex, Spacer, Button, useMediaQuery } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { loginState } from "../store/loginState";
 
-// import { UserContext } from "../providers/UserProvider";
+import { loginState } from "../store/loginState";
 
 export const TopHeader = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
