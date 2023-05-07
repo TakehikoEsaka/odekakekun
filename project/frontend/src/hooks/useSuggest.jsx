@@ -1,39 +1,22 @@
-import axios, { AxiosResponse } from "axios";
-import { useState } from "react";
 import { useRecoilState } from "recoil";
+
+import axiosInstance from "../axios";
 import { suggestState } from "../store/suggestState";
 
-const sampleSuggest = [
-  {
-    place: "中野通り商店街",
-    description:
-      "高円寺駅から中野通り商店街までは自転車で約10分程度です。商店街の両側には桜の木が並び、春には美しい桜並木が楽しめます。商店街には多くの飲食店や雑貨店があり、散策がてら訪れるのもおすすめです。",
-  },
-  {
-    place: "新宿御苑	",
-    description:
-      "高円寺駅から新宿御苑までは自転車で約15分程度です。新宿御苑は、都内でも有数の桜の名所のひとつで、春には多くの人で賑わいます。お花見スポットとして知られる「水辺の広場」や、「桜山」など、見どころもたくさんあります。入場料が必要ですが、桜の美しさを満喫できます。",
-  },
-  {
-    place: "井の頭恩賜公園",
-    description:
-      "高円寺駅から井の頭恩賜公園までは自転車で約20分程度です。公園内には、大小様々な池が点在し、桜並木も美しいスポットです。また、公園内には動物園もあり、動物たちと触れ合いながらのんびり過ごすこともできます。桜の季節には、公園内のさまざまな場所で桜を楽しめます。",
-  },
-];
-
 export const useSuggest = () => {
-  // stateに型を定義するのはこうする
   const [suggest, setSuggest] = useRecoilState(suggestState);
 
   const token = localStorage.getItem("access_token")
     ? localStorage.getItem("access_token")
     : "None";
 
-  const getSuggest = async (question) => {
-    await axios
-      .post("http://localhost:80/suggest", null, {
+  const getSuggest = async (place, time, way) => {
+    await axiosInstance
+      .post("/suggest", null, {
         params: {
-          question: question,
+          place: place,
+          time: time,
+          way: way,
         },
         headers: {
           "Content-Type": "application/json",
@@ -42,13 +25,14 @@ export const useSuggest = () => {
         },
       })
       .then((res) => {
-        console.log(res.data);
+        console.log("res.data is ", res.data);
 
-        //TODO ここをサンプルデータからChatGPTの結果に変える
-        // setSuggest(res.data);
-        setSuggest(sampleSuggest);
+        //TODO レスポンスの型定義をつけておく。もし違うレスポンスが帰ってきた時ようにエラー文言をつける
+        //TODO 次のエラーが起こったらhooksの処理を中断する。openai.error.APIConnectionError: Error communicating with OpenAI: ('Connection aborted.', OSError(65, 'No route to host')
+        //ASK。以下でsetSuggest(...suggest, res.data)がダメな理由
+        setSuggest(res.data);
 
-        console.log(suggest);
+        console.log("suggest from backend is ", suggest);
       });
   };
 
