@@ -13,8 +13,13 @@ class Suggest(Base):
     __tablename__ = "suggestion"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('userinfo.user_id'), nullable=False)
-    question = Column(String)
-    answer = Column(String)
+    question_uuid = Column(String)
+    place = Column(String)
+    time = Column(String)
+    way = Column(String)
+    suggest_place = Column(String)
+    suggest_description = Column(String)
+    suggest_distance = Column(String)
 
     # ここに相手のクラス名を入れておくとUserクラスからSuggestの内容をとれてコードの冗長化を防げる
     # 1対多の多側に入れておく

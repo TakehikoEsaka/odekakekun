@@ -13,6 +13,8 @@ import oauth2
 
 router = APIRouter()
 
+# TODO ユーザー作成の画面をフロントに作る
+# TODO パスワードが同じ場合もソルトを使ってhash値が被らないようにする方法を入れる
 @router.post("/create_user", tags = ["login"])  
 def create_user(request: schemas.UserInfo, db: Session = Depends(get_db)):
     try:
