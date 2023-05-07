@@ -9,16 +9,16 @@ import {
   ListIcon,
 } from "@chakra-ui/react";
 import { FaWalking, FaTrain, FaBus } from "react-icons/fa";
-
 import { useRecoilValue } from "recoil";
+
 import { questionState } from "../store/questionState";
 import { suggestState } from "../store/suggestState";
 
 export const Results = () => {
+  const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
+
   const question = useRecoilValue(questionState);
   const suggest = useRecoilValue(suggestState);
-
-  const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
 
   return (
     <Flex
@@ -33,22 +33,22 @@ export const Results = () => {
         を使っていけるおすすめの場所はこちらです
       </Box>
 
-      <Flex px={4} py={4}>
-        {suggest.length > 1 && (
-          <List>
-            {suggest.map((item) => (
+      <Flex px={4} py={4} flexDirection="column">
+        {Array(Object.values(suggest.suggest_place).length)
+          .fill(null)
+          .map((_, index) => (
+            <List>
               <ListItem>
                 <ListIcon as={FaWalking} color="green.500" />
                 <Link color="teal.500" href="#">
-                  {item.place}
+                  {suggest.suggest_place[index]}
                 </Link>
                 <Text mb={4} fontSize="base">
-                  {item.description}
+                  {suggest.suggest_description[index]}
                 </Text>
               </ListItem>
-            ))}
-          </List>
-        )}
+            </List>
+          ))}
       </Flex>
     </Flex>
   );
