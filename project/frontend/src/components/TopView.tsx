@@ -9,28 +9,25 @@ import {
 
 type PropType = {
   getSuggest: (wishVariables: string) => void;
+  getHistories: () => void;
 };
 
 export const TopView = (props: PropType) => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
 
   const trySuggest = () => {
-    // Reactの基本だけど子どもから親のstateを書き換えれる
+    // ASK フォームの値をどうやってとってくるか
     props.getSuggest("test");
+    props.getHistories();
   };
 
   return (
     <Flex
       alignItems="center" // 縦方向に揃える
-      // backgroundPosition="center"
-      // backgroundRepeat="no-repeat"
       backgroundColor="#f7f5f4"
       w="100%"
       px={isLargerThanLG ? "16" : "6"}
       py="16"
-      // minHeight="90vh"
-      // justifyContent="space-between"
-      // flexDirection={isLargerThanLG ? "row" : "column"}
     >
       <Box mr={isLargerThanLG ? "6" : "0"} w={isLargerThanLG ? "60%" : "80%"}>
         <Text

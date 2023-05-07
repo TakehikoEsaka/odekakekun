@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 
 import { questionState } from "../store/questionState";
+import { chatGPTLoadingState } from "../store/chatGPTLoadingState";
 
 interface OPtions {
   value: string;
@@ -40,26 +41,35 @@ const hourOptions: OPtions[] = [
 ];
 
 type PropType = {
-  getSuggest: (wishVariables: string) => void;
+  getSuggest: (place: string, hour: string, way: string) => void;
+  getHistories: () => void;
 };
 
 export const WishVariables = (props: PropType) => {
-  const { register, handleSubmit } = useForm<FormValues>();
+  const { register, handleSubmit, watch } = useForm<FormValues>();
   const [question, setQuestion] = useRecoilState(questionState);
+  const [loading, setLoading] = useRecoilState(chatGPTLoadingState);
+  // 全ての値を監視することができる
+  const watchedValue = watch();
 
-  const trySuggest = (data: FormValues) => {
+  // TODO ここのフォーム送信のトリガーが1つ前になっているので修正する
+  // TODO timeoutの時にローディングステータスを外す
+  // TODO loading中はボタンをおせなくする
+  const trySuggest = async (data: FormValues) => {
     const { place, hour, way } = data;
     setQuestion({ place: place, hour: hour, way: way });
-    const sentence = `${question.place}から${question.hour}以内で${question.way}を使っていけるおすすめの場所を探してください`;
-    console.log(sentence);
-    props.getSuggest(sentence);
+    // TODO hour -> timeという変数名になおしておく
+    setLoading(true);
+    await props.getSuggest(place, hour, way);
+    await props.getHistories();
+    setLoading(false);
   };
 
   return (
     <>
       <form onSubmit={handleSubmit(trySuggest)}>
         <Grid
-          // ここはレスポンシブで列の数を変えておく対応させておく
+          // PCとスマホの2つにレスポンシブ対応
           templateColumns={{ base: "repeat(1, 1fr)", lg: "repeat(3, 1fr)" }}
         >
           <FormControl p={4}>
@@ -78,7 +88,7 @@ export const WishVariables = (props: PropType) => {
             </Grid>
           </FormControl>
 
-          {/* 選択時にiphoneのキーボードが出ないようにしたい。inputProps={{ readOnly: true }}をつける必要があるけど難しいな。。*/}
+          {/* ASK 選択時にiphoneのキーボードが出ないようにする方法 */}
           <FormControl p={3} isReadOnly={true}>
             <FormLabel>時間</FormLabel>
             <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
@@ -99,11 +109,7 @@ export const WishVariables = (props: PropType) => {
             <FormLabel>交通手段</FormLabel>
             <Grid templateColumns="repeat(5, 1fr)" gap={4} alignItems="center">
               <GridItem colSpan={4}>
-                <Select
-                  // react-hook-formにdefaultのvalueを設定しておく必要がある
-                  defaultValue={question.way}
-                  {...register("way")}
-                >
+                <Select defaultValue={question.way} {...register("way")}>
                   {wayOptions.map((option) => (
                     <option key={option.label} value={option.label}>
                       {option.label}
@@ -118,7 +124,6 @@ export const WishVariables = (props: PropType) => {
 
         <Flex justifyContent="center">
           <Button
-            // chakraUIならcolorSchemeを指定すると背景色と背景色と対応する色味をセットでもってくれてるのでデザイン知識がなくても補完してくれるs
             colorScheme="blue"
             // typeをつけることでフォームの送信をする事ができる
             type="submit"
