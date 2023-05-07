@@ -11,10 +11,11 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
-import axios, { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
+
 import { loginState } from "../store/loginState";
+import axiosInstance from "../axios";
 
 export const Login = () => {
   const [email, setEmail] = useState("string@gmail.com");
@@ -25,7 +26,6 @@ export const Login = () => {
   const navigate = useNavigate();
   const [login, setLogin] = useRecoilState(loginState);
 
-  // Stateが更新されたタイミングで実行を行うようにする
   useEffect(() => {
     navigate(redirectTo);
   }, [redirectTo]);
@@ -33,17 +33,15 @@ export const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    // OAuth2はJSONではなくform dataを使うので注意
+    // OAuth2はJSONではなくFormDataを使う仕様なので注意
     const formData = new FormData();
     formData.append("username", email);
     formData.append("password", password);
 
-    // ここで投げるLoginの型が違うのか認証が通らない
     try {
-      const response = await axios
-        .post("http://localhost:80/token", formData)
+      const response = await axiosInstance
+        .post("/token", formData)
         .catch((error) => {
-          // ここにstateを無限ループしないように対応を入れる
           setError("メールアドレスまたはパスワードが違います");
         });
 
