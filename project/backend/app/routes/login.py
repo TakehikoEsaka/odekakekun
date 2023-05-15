@@ -52,3 +52,11 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
         'access_token': access_token,
         'token_type': 'bearer'
     }
+
+# session check
+@router.get('/login/session-check', tags = ["login"])
+def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
+    if current_user:
+        return True
+    else:
+        return None

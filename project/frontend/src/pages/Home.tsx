@@ -9,20 +9,20 @@ import { Results } from "../components/Results";
 import { Histories } from "../components/Histories";
 import { useSuggest } from "../hooks/useSuggest";
 import { useHistories } from "../hooks/useHistories";
-import { loginState } from "../store/loginState";
+import { useLogin } from "../hooks/useLogin";
+import { loginFormState, loginState } from "../store/loginState";
 import { chatGPTLoadingState } from "../store/chatGPTLoadingState";
 
 export const Home = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
   const { getSuggest, suggest } = useSuggest();
   const { getHistories, histories } = useHistories();
+  const { checkLogin, getcheckLogin } = useLogin();
   const [login, setLogin] = useRecoilState(loginState);
 
+  // ASK なぜuseEffect入れているのに複数回レンダリングされているのか
   useEffect(() => {
-    const access_token = localStorage.getItem("access_token");
-    if (access_token) {
-      setLogin(true);
-    }
+    getcheckLogin();
   }, []);
 
   return (
