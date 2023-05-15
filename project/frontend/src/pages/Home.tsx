@@ -10,7 +10,7 @@ import { Histories } from "../components/Histories";
 import { useSuggest } from "../hooks/useSuggest";
 import { useHistories } from "../hooks/useHistories";
 import { useLogin } from "../hooks/useLogin";
-import { loginFormState, loginState } from "../store/loginState";
+import { loginState } from "../store/loginState";
 import { chatGPTLoadingState } from "../store/chatGPTLoadingState";
 
 export const Home = () => {
