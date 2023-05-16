@@ -19,6 +19,7 @@ export const Home = () => {
   const { checkLogin, getcheckLogin } = useLogin();
 
   // ASK なぜuseEffect入れているのに複数回レンダリングされているのか
+  // セッションが切れている場合はログアウトにする
   useEffect(() => {
     getcheckLogin();
   }, []);
