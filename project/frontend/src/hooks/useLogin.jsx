@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useRecoilValue } from "recoil";
 import axiosInstance from "../axios";
 
 export const useLogin = () => {
-  const [checkLogin, setCheckLogin] = useState(useRecoilValue(loginState));
+  const [checkLogin, setCheckLogin] = useState(false);
 
   const getcheckLogin = async () => {
     // OAuth2はJSONではなくFormDataを使う仕様なので注意
