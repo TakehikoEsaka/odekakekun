@@ -14,7 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 
-import { loginState } from "../store/loginState";
 import axiosInstance from "../axios";
 
 export const Login = () => {

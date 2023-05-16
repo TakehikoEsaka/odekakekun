@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { loginState } from "../store/loginState";
+import { useRecoilValue } from "recoil";
 import axiosInstance from "../axios";
 
 export const useLogin = () => {
