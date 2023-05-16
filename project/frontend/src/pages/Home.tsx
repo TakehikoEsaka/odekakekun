@@ -10,7 +10,6 @@ import { Histories } from "../components/Histories";
 import { useSuggest } from "../hooks/useSuggest";
 import { useHistories } from "../hooks/useHistories";
 import { useLogin } from "../hooks/useLogin";
-import { loginState } from "../store/loginState";
 import { chatGPTLoadingState } from "../store/chatGPTLoadingState";
 
 export const Home = () => {
@@ -18,7 +17,6 @@ export const Home = () => {
   const { getSuggest, suggest } = useSuggest();
   const { getHistories, histories } = useHistories();
   const { checkLogin, getcheckLogin } = useLogin();
-  const [login, setLogin] = useRecoilState(loginState);
 
   // ASK なぜuseEffect入れているのに複数回レンダリングされているのか
   useEffect(() => {
@@ -44,7 +42,7 @@ export const Home = () => {
 
       {Object.values(suggest.suggest_place).length > 0 && <Results />}
 
-      {useRecoilValue(loginState) === true ? (
+      {Boolean(localStorage.getItem("login_state")) === true ? (
         <Histories getHistories={getHistories} histories={histories} />
       ) : (
         <Flex

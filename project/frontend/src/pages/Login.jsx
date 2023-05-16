@@ -24,7 +24,6 @@ export const Login = () => {
   const [error, setError] = useState("");
   const [redirectTo, setRedirectTo] = useState(null);
   const navigate = useNavigate();
-  const [login, setLogin] = useRecoilState(loginState);
 
   useEffect(() => {
     navigate(redirectTo);
@@ -46,7 +45,7 @@ export const Login = () => {
         });
 
       localStorage.setItem("access_token", response.data.access_token);
-      setLogin(true);
+      localStorage.setItem("login_state", true);
       setRedirectTo("/home");
     } catch (e) {
       console.log(e);

@@ -1,14 +1,12 @@
 import { Box, Flex, Spacer, Button, useMediaQuery } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-
-import { loginState } from "../store/loginState";
 
 export const TopHeader = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
 
   const tryLogout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("login_state");
     window.location.reload();
   };
 
@@ -28,7 +26,8 @@ export const TopHeader = () => {
 
       <Spacer />
 
-      {useRecoilValue(loginState) === true ? (
+      {/* ASK RecoilValueはページロード時にリセットされてしまうのか？それとも維持されるのか？ */}
+      {Boolean(localStorage.getItem("login_state")) === true ? (
         <Button variant="solid" onClick={tryLogout}>
           ログアウト
         </Button>
