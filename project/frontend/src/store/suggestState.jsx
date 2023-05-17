@@ -10,6 +10,7 @@ import { atom } from "recoil";
 export const suggestState = atom({
   key: "suggestState",
   default: {
+    message: null,
     suggest_place: {},
     suggest_description: {},
     suggest_distance: {},

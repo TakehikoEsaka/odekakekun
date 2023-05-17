@@ -16,12 +16,24 @@ export const Home = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
   const { getSuggest, suggest } = useSuggest();
   const { getHistories, histories } = useHistories();
-  const { checkLogin, getcheckLogin } = useLogin();
+  const { getcheckLogin } = useLogin();
 
   // ASK なぜuseEffect入れているのに複数回レンダリングされているのか
   // セッションが切れている場合はログアウトにする
+  // TODO getCheckLoginが終わったらレンダリングに入るようにする
+  // ASK useEffectはこれを入れないと初回レンダリング時にエラーになってしまうのか？
   useEffect(() => {
-    getcheckLogin();
+    const checkLogin = async () => {
+      await getcheckLogin();
+
+      // 非同期処理は並列関係にあるものに対してかかる。この場合以下のconsole.logはcheckLogin変数定義の外に書いた場合はconsole.logがgetcheckLoginよりも先に実行されることもあったので注意
+      console.log(
+        "checked result is ",
+        Boolean(localStorage.getItem("login_state"))
+      );
+    };
+
+    checkLogin();
   }, []);
 
   return (
@@ -41,7 +53,19 @@ export const Home = () => {
         </Flex>
       )}
 
-      {Object.values(suggest.suggest_place).length > 0 && <Results />}
+      {Object.values(suggest.suggest_place).length > 0 ? (
+        <Results />
+      ) : suggest.message != null ? (
+        <Flex
+          px={4}
+          py={4}
+          flexDirection="column"
+          alignItems="center"
+          color="red.500"
+        >
+          <>{suggest.message}</>
+        </Flex>
+      ) : null}
 
       {Boolean(localStorage.getItem("login_state")) === true ? (
         <Histories getHistories={getHistories} histories={histories} />

@@ -27,12 +27,26 @@ export const useSuggest = () => {
       .then((res) => {
         console.log("res.data is ", res.data);
 
-        //TODO レスポンスの型定義をつけておく。もし違うレスポンスが帰ってきた時ようにエラー文言をつける
-        //TODO 次のエラーが起こったらhooksの処理を中断する。openai.error.APIConnectionError: Error communicating with OpenAI: ('Connection aborted.', OSError(65, 'No route to host')
-        //ASK。以下でsetSuggest(...suggest, res.data)がダメな理由
-        setSuggest(res.data);
+        if (res.data === null) {
+          console.log("response is null !");
 
-        console.log("suggest from backend is ", suggest);
+          // ASK message以外はdefault値を使おうと思っているが、その場合も記載は必要なのか？
+          setSuggest({
+            message: "エラーがおきました。もう一度やり直してください",
+            suggest_place: {},
+            suggest_description: {},
+            suggest_distance: {},
+          });
+        } else {
+          //TODO レスポンスの型定義をつけておく。もし違うレスポンスが帰ってきた時ようにエラー文言をつける
+          //TODO 次のエラーが起こったらhooksの処理を中断する。openai.error.APIConnectionError: Error communicating with OpenAI: ('Connection aborted.', OSError(65, 'No route to host')
+          //ASK。以下でsetSuggest(...suggest, res.data)がダメな理由
+          setSuggest(res.data);
+        }
+      })
+      .catch((error) => {
+        // 例外が発生した場合の処理
+        console.error("There was a problem with the fetch operation:", error);
       });
   };
 
