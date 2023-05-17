@@ -61,7 +61,7 @@ export const Home = () => {
           py={4}
           flexDirection="column"
           alignItems="center"
-          color="red.500"
+          color="red.300"
         >
           <>{suggest.message}</>
         </Flex>
@@ -71,7 +71,12 @@ export const Home = () => {
         <Histories getHistories={getHistories} histories={histories} />
       ) : (
         <Flex
-        // TODO スタイルを調整する
+          px={4}
+          py={4}
+          flexDirection="column"
+          alignItems="center"
+
+          // TODO スタイルを調整する
         >
           <>ログインすると履歴が見えます</>
         </Flex>
