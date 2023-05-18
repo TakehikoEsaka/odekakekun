@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
 import axiosInstance from "../axios";
 
 export const useLogin = () => {
-  const [checkLogin, setCheckLogin] = useState(false);
-
   const getcheckLogin = async () => {
     // OAuth2はJSONではなくFormDataを使う仕様なので注意
 
@@ -18,15 +15,15 @@ export const useLogin = () => {
         },
       })
       .then(() => {
-        setCheckLogin(true);
+        console.log("authorized !");
+        localStorage.setItem("login_state", "true");
       })
       .catch((error) => {
-        setCheckLogin(false);
-        console.log(error);
+        console.log("unauthorized !");
+        localStorage.setItem("login_state", null);
+        console.log("error is ", error);
       });
   };
 
-  console.log("checked result is ", checkLogin);
-
-  return { checkLogin, getcheckLogin };
+  return { getcheckLogin };
 };

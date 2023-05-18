@@ -44,7 +44,7 @@ export const Login = () => {
         });
 
       localStorage.setItem("access_token", response.data.access_token);
-      localStorage.setItem("login_state", true);
+      localStorage.setItem("login_state", "true");
       setRedirectTo("/home");
     } catch (e) {
       console.log(e);

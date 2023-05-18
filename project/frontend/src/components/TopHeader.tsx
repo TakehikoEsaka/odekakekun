@@ -27,7 +27,7 @@ export const TopHeader = () => {
       <Spacer />
 
       {/* ASK RecoilValueはページロード時にリセットされてしまうのか？それとも維持されるのか？ */}
-      {Boolean(localStorage.getItem("login_state")) === true ? (
+      {localStorage.getItem("login_state") === "true" ? (
         <Button variant="solid" onClick={tryLogout}>
           ログアウト
         </Button>
