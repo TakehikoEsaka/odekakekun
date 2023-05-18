@@ -6,6 +6,8 @@ import {
   useMediaQuery,
   Text,
 } from "@chakra-ui/react";
+import { useRecoilValue } from "recoil";
+import { chatGPTLoadingState } from "../store/chatGPTLoadingState";
 
 type PropType = {
   getSuggest: (wishVariables: string) => void;
@@ -51,6 +53,7 @@ export const TopView = (props: PropType) => {
           size={isLargerThanLG ? "lg" : "md"}
           mb={isLargerThanLG ? "0" : "10"}
           onClick={trySuggest}
+          isDisabled={useRecoilValue(chatGPTLoadingState)}
         >
           まずは試してみる
         </Button>

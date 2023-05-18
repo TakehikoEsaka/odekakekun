@@ -53,8 +53,6 @@ export const WishVariables = (props: PropType) => {
   const watchedValue = watch();
 
   // TODO ここのフォーム送信のトリガーが1つ前になっているので修正する
-  // TODO timeoutの時にローディングステータスを外す
-  // TODO loading中はボタンをおせなくする
   const trySuggest = async (data: FormValues) => {
     const { place, hour, way } = data;
     setQuestion({ place: place, hour: hour, way: way });
@@ -127,6 +125,7 @@ export const WishVariables = (props: PropType) => {
             colorScheme="blue"
             // typeをつけることでフォームの送信をする事ができる
             type="submit"
+            isDisabled={loading}
           >
             おすすめの場所を探す
           </Button>
