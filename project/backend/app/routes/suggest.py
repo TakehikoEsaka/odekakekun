@@ -32,20 +32,6 @@ def get_suggest(db: Session, email : str):
 def ask_chatgpt(question):
     start_time = time.time()
     timeout_seconds = 5
-
-    # 処理時間が長い処理
-    # while True:
-        # 一定間隔で状態をチェック
-        # ここにChatGPTの処理を入れる
-        # if some_condition:
-        #     break
-        
-        # # タイムアウトした場合
-        # if time.time() - start_time > timeout_seconds:
-        #     print("Timeout occurred")
-        #     break
-
-    # TODO ここに処理が一定時間以内に終了しない場合はエラーにする処理を入れる
     try:
         response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
                                                 messages=[{"role": "user", "content": question},],timeout=1).choices[0]["message"]["content"].strip()
@@ -64,7 +50,6 @@ def ask_chatgpt(question):
         return df.to_dict(orient='dict')
     
     except Exception as e:
-        # TODO 例えばAPIキーを別のものにしてエラーを吐いた時にログが残るようにしたい
         print(e)
         return None
 
@@ -74,7 +59,6 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
     question = "{}から{}以内で{}を使っていけるおすすめの場所を3つ表形式で教えて下さい。場所名・距離・説明を列にして下さい".format(place, time, way)
 
     # ここでanswerをchat-gptからget
-    # TODO タイムアウト処理を入れる
     print("guess start")
     answer = ask_chatgpt(question)
     print("guess end")
@@ -84,8 +68,10 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
         print("answer is None")
         return None
 
-    # ログインしている時はDBに追加・そうでない時は追加しない
+    
     # TODO モデルにGoogleMapのリンクを入れるようにする
+
+    # ログインしている時はDBに追加・そうでない時は追加しない
     if current_user:
         question_uuid = str(uuid.uuid4())
         new_suggests = []
@@ -116,13 +102,12 @@ def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_activ
 
     df = pd.DataFrame(columns=["question_uuid", "place", "time", "way", "suggest_place"])
 
-    for s in user.suggestions[-1:-10:-1]:
+    for s in user.suggestions[-1:-16:-1]:
         df = pd.concat([df, pd.DataFrame([{"question_uuid" : s.question_uuid,
                                         "place": s.place,
                                         "time": s.time, 
                                         "way": s.way,
                                         "suggest_place": s.suggest_place}])], ignore_index=True)
-    print("success !")
-    print("df" , df)
+    # print("last 9 histories is following" , df)
     return df.to_dict(orient="records")
 

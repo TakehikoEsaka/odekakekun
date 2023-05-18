@@ -19,7 +19,6 @@ export const useHistories = () => {
       setHistories(response.data);
       console.log(response.data);
     } catch (error) {
-      // TODO openapiのtimeout errorが出た時は次の質問ができる状態にする
       console.error(error);
     }
   };

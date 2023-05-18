@@ -15,7 +15,6 @@ import {
 import { useEffect, useState } from "react";
 import { FaWalking, FaTrain, MdPedalBike, FaBus } from "react-icons/fa";
 
-// TODO ボタンをおさなくても自動で履歴が見れるようにする
 export const Histories = (props) => {
   const [groupedData, setGroupedData] = useState({});
 
@@ -24,13 +23,10 @@ export const Histories = (props) => {
     const token = localStorage.getItem("access_token");
     props.getHistories(token);
     // ASK props.getHistoriesが実行された後に実行する方法
-    console.log("props.histories is ", props.histories);
   }, []);
 
   // 初回レンダリング時と質問後履歴更新時の対応用
   useEffect(() => {
-    console.log("rendering 2");
-    // TODO 可能ならこのIF文は抜いておきたい
     if (props.histories != undefined) {
       const newData = props.histories.reduce(
         (acc, obj) => {
@@ -64,40 +60,42 @@ export const Histories = (props) => {
       // オブジェクトのstateを更新する時は新しいオブジェクトがあっても大丈夫
       // 参考：https://zenn.dev/luvmini511/articles/722cb85067d4e9
       // 参考：https://devsakaso.com/react-usestate/
-      setGroupedData({ ...groupedData, ...newData });
-      console.log("state", groupedData);
+      setGroupedData({ ...newData, ...groupedData });
     }
   }, [props.histories]);
 
-  console.log("props.histories :", props.histories);
+  // console.log("props.histories :", props.histories);
+  console.log("groupedData is :", Object.values(groupedData).length);
 
   return (
     <Flex justifyContent="cloumn" p={6} flexDirection="column">
       <Accordion>
         {true &&
           // ASK groupedDataは値ではなくstateでもつべきか？
-          Object.values(groupedData).map((items) => (
-            <AccordionItem key={items.question_uuid}>
-              <AccordionButton>
-                <Box as="span" flex="1" textAlign="left">
-                  {/* TODO 交通手段に合わせてアイコンを変化させる */}
-                  {items.place[0]}から{items.time[1]}以内で{items.way[2]}
-                  を使っていける
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-              <AccordionPanel pb={4}>
-                <List>
-                  {items.suggest_place.map((item) => (
-                    <ListItem key={item}>
-                      <ListIcon as={FaWalking} color="green.500" />
-                      {item}
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionPanel>
-            </AccordionItem>
-          ))}
+          Object.values(groupedData)
+            .slice(0, 5) //上限4つまでプルダウンは表示する
+            .map((items) => (
+              <AccordionItem key={items.question_uuid}>
+                <AccordionButton>
+                  <Box as="span" flex="1" textAlign="left">
+                    {/* TODO 交通手段に合わせてアイコンを変化させる */}
+                    {items.place[0]}から{items.time[1]}以内で{items.way[2]}
+                    を使っていける
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <List>
+                    {items.suggest_place.map((item) => (
+                      <ListItem key={item}>
+                        <ListIcon as={FaWalking} color="green.500" />
+                        {item}
+                      </ListItem>
+                    ))}
+                  </List>
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
       </Accordion>
     </Flex>
   );
