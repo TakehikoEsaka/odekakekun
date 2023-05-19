@@ -2,7 +2,7 @@ import {
   Flex,
   Box,
   List,
-  Button,
+  Icon,
   ListItem,
   UnorderedList,
   Accordion,
@@ -13,7 +13,14 @@ import {
   ListIcon,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaWalking, FaTrain, MdPedalBike, FaBus } from "react-icons/fa";
+import {
+  FaWalking,
+  FaTrain,
+  FaBiking,
+  FaBus,
+  FaRegHandPointRight,
+  FaCarSide,
+} from "react-icons/fa";
 
 export const Histories = (props) => {
   const [groupedData, setGroupedData] = useState({});
@@ -64,8 +71,25 @@ export const Histories = (props) => {
     }
   }, [props.histories]);
 
+  const renderIcon = (value) => {
+    switch (value) {
+      case "徒歩":
+        return <Icon as={FaWalking} color="green.500" />;
+      case "電車":
+        return <Icon as={FaTrain} color="green.500" />;
+      case "自転車":
+        return <Icon as={FaBiking} color="green.500" />;
+      case "バス":
+        return <Icon as={FaBus} color="green.500" />;
+      case "車":
+        return <Icon as={FaCarSide} color="green.500" />;
+      default:
+        return null; // 対応するアイコンがない場合はnullを返す
+    }
+  };
+
   // console.log("props.histories :", props.histories);
-  console.log("groupedData is :", Object.values(groupedData).length);
+  console.log("groupedData is :", groupedData);
 
   return (
     <Flex justifyContent="cloumn" p={6} flexDirection="column">
@@ -78,8 +102,9 @@ export const Histories = (props) => {
               <AccordionItem key={items.question_uuid}>
                 <AccordionButton>
                   <Box as="span" flex="1" textAlign="left">
-                    {/* TODO 交通手段に合わせてアイコンを変化させる */}
-                    {items.place[0]}から{items.time[1]}以内で{items.way[2]}
+                    {/* wayに合わせてアイコンを変化 */}
+                    {renderIcon(items.way[0])}
+                    {items.place[0]}から{items.time[0]}以内で{items.way[0]}
                     を使っていける
                   </Box>
                   <AccordionIcon />
@@ -88,8 +113,13 @@ export const Histories = (props) => {
                   <List>
                     {items.suggest_place.map((item) => (
                       <ListItem key={item}>
-                        <ListIcon as={FaWalking} color="green.500" />
-                        {item}
+                        <Flex ml={6}>
+                          <ListIcon
+                            as={FaRegHandPointRight}
+                            color="green.500"
+                          />
+                          {item}
+                        </Flex>
                       </ListItem>
                     ))}
                   </List>

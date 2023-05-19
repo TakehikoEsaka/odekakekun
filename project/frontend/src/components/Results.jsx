@@ -6,9 +6,16 @@ import {
   Link,
   ListItem,
   Text,
-  ListIcon,
+  Icon,
 } from "@chakra-ui/react";
-import { FaWalking, FaTrain, FaBus } from "react-icons/fa";
+import {
+  FaWalking,
+  FaTrain,
+  FaBiking,
+  FaBus,
+  FaRegHandPointRight,
+  FaCarSide,
+} from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 
 import { questionState } from "../store/questionState";
@@ -19,6 +26,23 @@ export const Results = () => {
 
   const question = useRecoilValue(questionState);
   const suggest = useRecoilValue(suggestState);
+
+  const renderIcon = (value) => {
+    switch (value) {
+      case "徒歩":
+        return <Icon as={FaWalking} color="green.500" />;
+      case "電車":
+        return <Icon as={FaTrain} color="green.500" />;
+      case "自転車":
+        return <Icon as={FaBiking} color="green.500" />;
+      case "バス":
+        return <Icon as={FaBus} color="green.500" />;
+      case "車":
+        return <Icon as={FaCarSide} color="green.500" />;
+      default:
+        return null; // 対応するアイコンがない場合はnullを返す
+    }
+  };
 
   return (
     <Flex
@@ -39,7 +63,9 @@ export const Results = () => {
           .map((_, index) => (
             <List>
               <ListItem>
-                <ListIcon as={FaWalking} color="green.500" />
+                {renderIcon(question.way)}
+                {/* <ListIcon as={FaWalking} color="green.500" /> */}
+
                 <Link color="teal.500" href="#">
                   {suggest.suggest_place[index]}
                 </Link>
