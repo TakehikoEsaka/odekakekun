@@ -13,13 +13,11 @@ import oauth2
 
 router = APIRouter()
 
-# TODO ユーザー作成の画面をフロントに作る
-# TODO パスワードが同じ場合もソルトを使ってhash値が被らないようにする方法を入れる
 @router.post("/create_user", tags = ["login"])  
-def create_user(request: schemas.UserInfo, db: Session = Depends(get_db)):
+def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     try:
         hashed_password = Hash.bycrypt(request.password)
-        new_user = models.UserInfo(email = request.email, password = hashed_password)
+        new_user = models.UserInfo(email = request.username, password = hashed_password)
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
@@ -59,4 +57,7 @@ def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_activ
     if current_user:
         return True
     else:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='401 unauthorized'
+        )
