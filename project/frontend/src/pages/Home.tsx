@@ -18,9 +18,8 @@ export const Home = () => {
   const { getHistories, histories } = useHistories();
   const { getcheckLogin } = useLogin();
 
-  // ASK なぜuseEffect入れているのに複数回レンダリングされているのか
   // セッションが切れている場合はログアウトにする
-  // TODO getCheckLoginが終わったらレンダリングに入るようにする
+  // ASK なぜuseEffect入れているのに複数回レンダリングされているのか
   // ASK useEffectはこれを入れないと初回レンダリング時にエラーになってしまうのか？
   useEffect(() => {
     const checkLogin = async () => {
@@ -50,7 +49,8 @@ export const Home = () => {
         </Flex>
       )}
 
-      {Object.values(suggest.suggest_place).length > 0 ? (
+      {useRecoilValue(chatGPTLoadingState) !== true &&
+      Object.values(suggest.suggest_place).length > 0 ? (
         <Results />
       ) : suggest.message != null ? (
         <Flex
@@ -67,14 +67,7 @@ export const Home = () => {
       {localStorage.getItem("login_state") === "true" ? (
         <Histories getHistories={getHistories} histories={histories} />
       ) : (
-        <Flex
-          px={4}
-          py={4}
-          flexDirection="column"
-          alignItems="center"
-
-          // TODO スタイルを調整する
-        >
+        <Flex px={4} py={4} flexDirection="column" alignItems="center">
           <>ログインすると履歴が見えます</>
         </Flex>
       )}
