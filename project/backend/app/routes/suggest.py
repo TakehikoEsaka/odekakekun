@@ -71,6 +71,8 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
     
     # TODO モデルにGoogleMapのリンクを入れるようにする
 
+    # TODO ログインしていない場合にBKからのレスポンスも返して401エラーが出ないようにする
+
     # ログインしている時はDBに追加・そうでない時は追加しない
     if current_user:
         question_uuid = str(uuid.uuid4())
@@ -92,22 +94,30 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
         db.bulk_insert_mappings(models.Suggest, new_suggests)
         # db.bulk_update_mappings(models.Suggest, new_suggests)
         db.commit()
+    else:
+        pass
 
     return answer
 
 @router.get("/get_all_suggest", tags = ["suggest"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
 
-    user = db.query(models.UserInfo).filter(models.UserInfo.user_id == current_user.user_id).first()
+    if current_user:
+        user = db.query(models.UserInfo).filter(models.UserInfo.user_id == current_user.user_id).first()
 
-    df = pd.DataFrame(columns=["question_uuid", "place", "time", "way", "suggest_place"])
+        df = pd.DataFrame(columns=["question_uuid", "place", "time", "way", "suggest_place"])
 
-    for s in user.suggestions[-1:-16:-1]:
-        df = pd.concat([df, pd.DataFrame([{"question_uuid" : s.question_uuid,
-                                        "place": s.place,
-                                        "time": s.time, 
-                                        "way": s.way,
-                                        "suggest_place": s.suggest_place}])], ignore_index=True)
-    # print("last 9 histories is following" , df)
-    return df.to_dict(orient="records")
+        for s in user.suggestions[-1:-16:-1]:
+            df = pd.concat([df, pd.DataFrame([{"question_uuid" : s.question_uuid,
+                                            "place": s.place,
+                                            "time": s.time, 
+                                            "way": s.way,
+                                            "suggest_place": s.suggest_place}])], ignore_index=True)
+        # print("last 9 histories is following" , df)
+        return df.to_dict(orient="records")
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='401 unauthorized'
+        )
 
