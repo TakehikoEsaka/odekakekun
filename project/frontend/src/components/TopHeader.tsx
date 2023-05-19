@@ -26,18 +26,31 @@ export const TopHeader = () => {
 
       <Spacer />
 
-      {/* ASK RecoilValueはページロード時にリセットされてしまうのか？それとも維持されるのか？ */}
-      {localStorage.getItem("login_state") === "true" ? (
-        <Button variant="solid" onClick={tryLogout}>
-          ログアウト
-        </Button>
-      ) : (
-        <Link to="/login" replace>
-          <Button colorScheme="blue" variant="solid">
-            ログイン
+      <Flex>
+        {/* ASK RecoilValueはページロード時にリセットされてしまうのか？それとも維持されるのか？ */}
+        {localStorage.getItem("login_state") !== "true" && (
+          <Link to="/create_user" replace>
+            <Button variant="solid" onClick={tryLogout}>
+              アカウント作成
+            </Button>
+          </Link>
+        )}
+      </Flex>
+
+      <Flex ml={6}>
+        {/* ASK RecoilValueはページロード時にリセットされてしまうのか？それとも維持されるのか？ */}
+        {localStorage.getItem("login_state") === "true" ? (
+          <Button variant="solid" onClick={tryLogout}>
+            ログアウト
           </Button>
-        </Link>
-      )}
+        ) : (
+          <Link to="/login" replace>
+            <Button colorScheme="blue" variant="solid">
+              ログイン
+            </Button>
+          </Link>
+        )}
+      </Flex>
     </Flex>
   );
 };
