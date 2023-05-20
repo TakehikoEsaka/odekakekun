@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-import random
-import string
 import pandas as pd
 from pathlib import Path
 import time
@@ -71,7 +69,6 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
     
     # TODO モデルにGoogleMapのリンクを入れるようにする
 
-    # TODO ログインしていない場合にBKからのレスポンスも返して401エラーが出ないようにする
 
     # ログインしている時はDBに追加・そうでない時は追加しない
     if current_user:
@@ -116,8 +113,5 @@ def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_activ
         # print("last 9 histories is following" , df)
         return df.to_dict(orient="records")
     else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='401 unauthorized'
-        )
+        None
 

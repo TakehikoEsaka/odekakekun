@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 export const TopHeader = () => {
   const [isLargerThanLG] = useMediaQuery("(min-width: 62em)");
 
-  const tryLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("login_state");
+  const tryLogout = async () => {
+    await localStorage.removeItem("access_token");
+    await localStorage.removeItem("login_state");
     window.location.reload();
   };
 

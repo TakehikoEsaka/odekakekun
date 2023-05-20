@@ -39,10 +39,7 @@ export const useSuggest = () => {
             suggest_distance: {},
           });
         } else {
-          //TODO レスポンスの型定義をつけておく。もし違うレスポンスが帰ってきた時ようにエラー文言をつける
-          //TODO 次のエラーが起こったらhooksの処理を中断する。openai.error.APIConnectionError: Error communicating with OpenAI: ('Connection aborted.', OSError(65, 'No route to host')
           //ASK。以下でsetSuggest(...suggest, res.data)がダメな理由
-          // TODO ここをnullにするのか？一度エラーになって再度復活できる時にメッセージを更新する方法を調べる
           setSuggest({ message: null, ...res.data });
         }
       })

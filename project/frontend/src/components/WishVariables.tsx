@@ -52,11 +52,9 @@ export const WishVariables = (props: PropType) => {
   // 全ての値を監視することができる
   const watchedValue = watch();
 
-  // TODO ここのフォーム送信のトリガーが1つ前になっているので修正する
   const trySuggest = async (data: FormValues) => {
     const { place, hour, way } = data;
     setQuestion({ place: place, hour: hour, way: way });
-    // TODO hour -> timeという変数名になおしておく
     setLoading(true);
     await props.getSuggest(place, hour, way);
     await props.getHistories();
