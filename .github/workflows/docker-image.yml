@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main", "feature/#1" ]
+    branches: ["main", "feature/#9"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com # ECRレジストリURL
@@ -12,25 +12,22 @@ env:
 
 jobs:
   build:
-    name : Build
+    name: Build
     runs-on: ubuntu-latest
     environment: production
-    
+
     permissions:
       id-token: write
       contents: read
 
     steps:
       # echo $GITHUB_WORKSPACE -> /home/runner/work/odekakekun/odekakekun
-      - 
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - 
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - 
-        name: Cache Docker layers
+      - name: Cache Docker layers
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
@@ -38,29 +35,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - 
-        name: Configure AWS Credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ap-northeast-1
 
-      - 
-        name : Login to ECR
+      - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - 
-        name: Build the Docker image
+      - name: Build the Docker image
         uses: docker/build-push-action@v4
         with:
           push: false
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-          context : project/backend
+          context: project/backend
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - 
-        name: Move cache
+      - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
