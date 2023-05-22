@@ -1,6 +1,5 @@
 # action.yml
 name: "Build Docker Image & Test"
-description: "Greet someone and record the time"
 
 on:
   push:
