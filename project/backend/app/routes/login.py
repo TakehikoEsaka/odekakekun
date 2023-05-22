@@ -10,6 +10,14 @@ from oauth2 import create_access_token
 from hashing import Hash
 from database import get_db
 import oauth2
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+# print文をログに出力するハンドラを追加
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 router = APIRouter()
 
@@ -17,7 +25,7 @@ router = APIRouter()
 def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     try:
         hashed_password = Hash.bycrypt(request.password)
-        new_user = models.UserInfo(email = request.username, password = hashed_password)
+        new_user = models.UserInfo(username = request.username, password = hashed_password)
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
@@ -25,12 +33,14 @@ def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
         db.rollback()
         # このHTTP Exceptionを使うとDB周りの例外処理が扱いやすくなる
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already registered")
+    logger.info("new user is %s", new_user)
+    print("new user is ", new_user.username)
     return new_user
 
 # tokenという名前以外はつけれないので注意
 @router.post('/token', response_model=schemas.Token, tags = ["login"])
 def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    userinfo = db.query(models.UserInfo).filter(models.UserInfo.email == request.username).first()
+    userinfo = db.query(models.UserInfo).filter(models.UserInfo.username == request.username).first()
 
     if not userinfo:
         raise HTTPException(
@@ -44,7 +54,7 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
             detail='Incorrect password'
         )
     
-    access_token = oauth2.create_access_token(data={'sub': userinfo.email})
+    access_token = oauth2.create_access_token(data={'sub': userinfo.username})
 
     return {
         'access_token': access_token,
@@ -54,6 +64,8 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
 # session check
 @router.get('/login/session-check', tags = ["login"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
+    # TODO ここをユーザー情報をつけて認証するフローを入れる。今は
+    # print("request.username is : ", request.username)
     if current_user:
         return True
     else:

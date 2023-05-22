@@ -9,6 +9,10 @@ from database import engine
 from routes.suggest import router as suggest_router
 from routes.login import router as login_router
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+
 app = FastAPI()
 
 # フロントエンドからのリクエストを受け入れるために、CORSを設定する
