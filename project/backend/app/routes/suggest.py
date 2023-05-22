@@ -46,7 +46,7 @@ def ask_chatgpt(question):
             df[col] = df[col].str.strip()
 
         return df.to_dict(orient='dict')
-    
+
     except Exception as e:
         print(e)
         return None

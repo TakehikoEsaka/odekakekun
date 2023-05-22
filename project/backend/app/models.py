@@ -6,7 +6,7 @@ class UserInfo(Base):
     __tablename__ = "userinfo"
 
     user_id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True)
+    username = Column(String, unique=True)
     password = Column(String)
 
 class Suggest(Base):
