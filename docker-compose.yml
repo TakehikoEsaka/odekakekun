@@ -1,4 +1,4 @@
-# docker-compose.yml
+# docker-composeで分けて記載をしておく
 version: "3.8"
 
 services:

@@ -10,6 +10,10 @@ sessionLocal = sessionmaker(bind=engine, autoflush=False)
 Base = declarative_base()
 
 def get_db():
+    """endpointからアクセス時に、Dependで呼び出しdbセッションを生成する
+    エラー時はcloseする
+    """
+
     db = sessionLocal()
     try:
         yield db

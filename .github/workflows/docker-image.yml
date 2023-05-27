@@ -1,4 +1,5 @@
 # TODO Dokcerの中でテストを動かすべきなのか？
+# TODO DockerのImage Buildと分けてactionファイルを管理しておく
 name: "Build Docker Image & Test"
 
 on:
