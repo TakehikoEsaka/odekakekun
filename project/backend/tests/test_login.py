@@ -12,14 +12,3 @@ def test_create_user(test_client):
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["username"] == EMAIL
-
-
-# def test_create_user2(test_client):
-#     response = test_client.post("/users/", json={"email": "foo4", "password": "fo"})
-#     assert response.status_code == 200, response.text
-
-#     response = test_client.post("/users/", json={"email": "foo5", "password": "fo"})
-#     assert response.status_code == 200, response.text
-
-#     response = test_client.post("/users/", json={"email": "foo6", "password": "fo"})
-#     assert response.status_code == 200, response.text

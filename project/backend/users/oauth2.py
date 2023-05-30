@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 from jose import jwt
 from jose.exceptions import JWTError
 
-import models
-import schemas
-from database import get_db
+from users import models
+from users import schemas
+from users.database import get_db
 
 # ログインしている時としていない時でAPIを共通化するためにauthorizeをoptionalにする
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)

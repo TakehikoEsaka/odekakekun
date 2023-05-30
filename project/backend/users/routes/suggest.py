@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 import time
 
-import models
+from users import models
 from database import get_db
 import oauth2
 

@@ -4,10 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent))
-from models import Base
-from database import engine
-from routes.suggest import router as suggest_router
-from routes.login import router as login_router
+from users.models import Base
+from users.database import engine
+from users.routes.suggest import router as suggest_router
+from users.routes.login import router as login_router
 
 # from fastapi import Depends, FastAPI, HTTPException
 # from sqlalchemy.orm import Session
