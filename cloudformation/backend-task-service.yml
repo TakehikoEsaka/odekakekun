@@ -1,0 +1,136 @@
+# TODO クラスターを立ち上げれるようにする
+# まずはコンソール画面でbackendを立ち上げれるように
+# それかECSの所はクラスターの所まで記載しておいて、serviceとtaskは一旦手動で定義していくのがいいかも
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create ECS BackEnd Task & Service
+Parameters:
+  # 値をコンソールから受付け
+  #BackEnd
+  ECSBackEndServiceName:
+    Type: String
+    Default: "odekakekun-backend-service"
+
+  ECSBackEndTaskName:
+    Type: String
+    Default: "odekakekun-backend-task"
+
+  ECSBackEndContainerName:
+    Type: String
+    Default: "odekakekun-backend-container"
+
+  ECSBackEndImageName:
+    Type: String
+    Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
+
+  # SSMから取得
+  PublicSubnetAId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PublicSubnetAId
+
+  PublicSubnetCId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PublicSubnetCId
+
+  ECSCluster:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/ECSCluster
+
+  ECSLogGroup:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/ECSLogGroup
+
+  TargetGroup:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/TargetGroup
+
+  ECSTaskExecutionRole: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/ECSTaskExecutionRole
+
+  ECSSecurityGroupId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::SecurityGroup::Id>
+    Default: /odekakekun-values/ECSSecurityGroupId
+
+Resources:
+  # BackEnd
+  # ########################################################
+  # ###  Service Discovery for BackEnd Service
+  # ########################################################
+  # PrivateDnsNamespace:
+  #   Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+  #   Properties:
+  #     Vpc: !Ref VpcId
+  #     Name: "odekakekun-local"
+
+  # ServiceDiscovery:
+  #   Type: AWS::ServiceDiscovery::Service
+  #   Properties:
+  #     HealthCheckCustomConfig:
+  #       FailureThreshold: 1
+  #     DnsConfig:
+  #       DnsRecords:
+  #         - Type: A
+  #           TTL: 60
+  #       NamespaceId: !GetAtt PrivateDnsNamespace.Id
+  #     Name: "odekakekun-service-discovery"
+
+  ########################################################
+  ###  ECS BackEnd TaskDefinition
+  ########################################################
+  ECSBackEndTaskDefinition:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      Cpu: 1024
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      Family: !Ref ECSBackEndTaskName
+      Memory: 2048
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+
+      #ContainerDefinitions
+      ContainerDefinitions:
+        - Name: !Ref ECSBackEndContainerName
+          Image: !Ref ECSBackEndImageName
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref ECSLogGroup
+              # AWSの既に定義されてる環境変数のようなものを引っ張ってこれる
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: odekakekun
+          MemoryReservation: 128
+          PortMappings:
+            - HostPort: 80
+              Protocol: tcp
+              ContainerPort: 80
+
+  ########################################################
+  ###  ECS BackEnd ServieDefinition
+  ########################################################
+  ECSBackendService:
+    Type: AWS::ECS::Service
+    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
+    # DependsOn: ALBListener
+    Properties:
+      Cluster: !Ref ECSCluster
+      DesiredCount: 1
+      LaunchType: FARGATE
+      PlatformVersion: "1.4.0"
+      # ServiceRegistries:
+      #   - RegistryArn: !GetAtt ServiceDiscovery.Arn
+      LoadBalancers:
+        - TargetGroupArn: !Ref TargetGroup
+          ContainerPort: 80
+          ContainerName: !Ref ECSBackEndContainerName
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "DISABLED"
+          SecurityGroups:
+            - !Ref ECSSecurityGroupId
+          Subnets:
+            - !Ref PublicSubnetAId
+            - !Ref PublicSubnetCId
+      ServiceName: !Ref ECSBackEndServiceName
+      TaskDefinition: !Ref ECSBackEndTaskDefinition
