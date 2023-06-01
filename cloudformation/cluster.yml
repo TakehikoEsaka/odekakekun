@@ -23,40 +23,6 @@ Parameters:
     Type: String
     Default: "odekakekun-cluster"
 
-  #FrontEnd
-  ECSFrontEndServiceName:
-    Type: String
-    Default: "odekakekun-frontend-service"
-
-  ECSFrontEndTaskName:
-    Type: String
-    Default: "odekakekun-frontend-task"
-
-  ECSFrontEndContainerName:
-    Type: String
-    Default: "odekakekun-frontend-container"
-
-  ECSFrontEndImageName:
-    Type: String
-    Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-frontend"
-
-  #BackEnd
-  ECSBackEndServiceName:
-    Type: String
-    Default: "odekakekun-backend-service"
-
-  ECSBackEndTaskName:
-    Type: String
-    Default: "odekakekun-backend-task"
-
-  ECSBackEndContainerName:
-    Type: String
-    Default: "odekakekun-backend-container"
-
-  ECSBackEndImageName:
-    Type: String
-    Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
-
   # LogGroup
   ECSLogGroupName:
     Type: String
@@ -80,6 +46,22 @@ Resources:
       LogGroupName: !Ref ECSLogGroupName
 
   ########################################################
+  ### Security Group for ECS Service
+  ########################################################
+  ECSSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ECS Service Security Group
+      VpcId: !Ref VpcId
+      GroupName: ecs-service-security-group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          # TODO 適切なものを考える
+          CidrIp: 0.0.0.0/0
+
+  ########################################################
   ###  ECS Task Execution Role
   ########################################################
   ECSTaskExecutionRole:
@@ -95,171 +77,37 @@ Resources:
               Service: ecs-tasks.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
+        # AWS側でデフォルトでついているものを利用する
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
-  ########################################################
-  ### Security Group for ECS Service
-  ########################################################
-  ECSSecurityGroupId:
-    Type: AWS::EC2::SecurityGroup
+  # ------------------------------------------------------------#
+  #  Parameter Store
+  # ------------------------------------------------------------#
+  # 渡す値をParameter Storeに保存する
+  SSMECSCluster:
+    Type: AWS::SSM::Parameter
     Properties:
-      GroupDescription: ECS Service Security Group
-      VpcId: !Ref VpcId
-      GroupName: ecs-service-security-group
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
+      Name: /odekakekun-values/ECSCluster
+      Type: String
+      Value: !Ref "ECSCluster"
 
-  # FrontEnd
-  ########################################################
-  ###  ECS FrontEnd TaskDefinition
-  ########################################################
-  ECSFrontEndTaskDefinition:
-    Type: "AWS::ECS::TaskDefinition"
+  SSMECSTaskExecutionRole:
+    Type: AWS::SSM::Parameter
     Properties:
-      Cpu: 512
-      ExecutionRoleArn: !Ref ECSTaskExecutionRole
-      Family: !Ref ECSFrontEndTaskName
-      Memory: 1024
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
+      Name: /odekakekun-values/ECSTaskExecutionRole
+      Type: String
+      Value: !Ref "ECSTaskExecutionRole"
 
-      #ContainerDefinitions
-      ContainerDefinitions:
-        - Name: !Ref ECSFrontEndContainerName
-          Image: !Ref ECSFrontEndImageName
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref ECSLogGroup
-              # AWSの既に定義されてる環境変数のようなものを引っ張ってこれる
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: odekakekun
-          MemoryReservation: 128
-          PortMappings:
-            - HostPort: 80
-              Protocol: tcp
-              ContainerPort: 80
-
-  ########################################################
-  ###  ECS FrontEnd ServieDefinition
-  ########################################################
-  ECSFrontEndService:
-    Type: AWS::ECS::Service
-    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
-    # DependsOn: ALBListener
+  SSMECSLogGroup:
+    Type: AWS::SSM::Parameter
     Properties:
-      Cluster: !Ref ECSCluster
-      DesiredCount: 1
-      LaunchType: FARGATE
-      PlatformVersion: "1.4.0"
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroup
-          ContainerPort: 80
-          ContainerName: !Ref ECSFrontEndContainerName
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
-          SecurityGroups:
-            - !Ref ECSSecurityGroupId
-          Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
-      ServiceName: !Ref ECSFrontEndServiceName
-      TaskDefinition: !Ref ECSFrontEndTaskDefinition
+      Name: /odekakekun-values/ECSLogGroup
+      Type: String
+      Value: !Ref "ECSLogGroup"
 
-  # BackEnd
-  ########################################################
-  ###  Service Discovery for BackEnd Service
-  ########################################################
-  PrivateDnsNamespace:
-    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+  SSMECSSecurityGroupId:
+    Type: AWS::SSM::Parameter
     Properties:
-      Vpc: !Ref VpcId
-      Name: "odekakekun-local"
-
-  ServiceDiscovery:
-    Type: AWS::ServiceDiscovery::Service
-    Properties:
-      HealthCheckCustomConfig:
-        FailureThreshold: 1
-      DnsConfig:
-        DnsRecords:
-          - Type: A
-            TTL: 60
-        NamespaceId: !GetAtt PrivateDnsNamespace.Id
-      Name: "odekakekun-service-discovery"
-
-  ########################################################
-  ###  ECS BackEnd TaskDefinition
-  ########################################################
-  ECSBackEndTaskDefinition:
-    Type: "AWS::ECS::TaskDefinition"
-    Properties:
-      Cpu: 256
-      ExecutionRoleArn: !Ref ECSTaskExecutionRole
-      Family: !Ref ECSBackEndTaskName
-      Memory: 512
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-
-      #ContainerDefinitions
-      ContainerDefinitions:
-        - Name: !Ref ECSBackEndContainerName
-          Image: !Ref ECSBackEndImageName
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref ECSLogGroup
-              # AWSの既に定義されてる環境変数のようなものを引っ張ってこれる
-              awslogs-region: !Ref "AWS::Region"
-              awslogs-stream-prefix: odekakekun
-          MemoryReservation: 128
-          PortMappings:
-            - HostPort: 80
-              Protocol: tcp
-              ContainerPort: 80
-
-  ########################################################
-  ###  ECS BackEnd ServieDefinition
-  ########################################################
-  ECSBackendService:
-    Type: AWS::ECS::Service
-    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
-    # DependsOn: ALBListener
-    Properties:
-      Cluster: !Ref ECSCluster
-      DesiredCount: 1
-      LaunchType: FARGATE
-      PlatformVersion: "1.4.0"
-      ServiceRegistries:
-        - RegistryArn: !GetAtt ServiceDiscovery.Arn
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroup
-          ContainerPort: 80
-          ContainerName: !Ref ECSBackEndContainerName
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: "DISABLED"
-          SecurityGroups:
-            - !Ref ECSSecurityGroupId
-          Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
-      ServiceName: !Ref ECSBackEndServiceName
-      TaskDefinition: !Ref ECSBackEndTaskDefinition
-
-Outputs:
-  ECSCluster:
-    Value: !Ref ECSCluster
-    Export:
-      Name: ECSCluster
-
-  ECSLogGroup:
-    Value: !Ref ECSLogGroup
-    Export:
-      Name: ECSLogGroup
+      Name: /odekakekun-values/ECSSecurityGroupId
+      Type: String
+      Value: !Ref "ECSSecurityGroupId"
