@@ -6,7 +6,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS BackEnd Task & Service
 Parameters:
   # 値をコンソールから受付け
-  #BackEnd
   ECSBackEndServiceName:
     Type: String
     Default: "odekakekun-backend-service"
@@ -81,10 +80,10 @@ Resources:
   ECSBackEndTaskDefinition:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
-      Cpu: 1024
+      Cpu: 512
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       Family: !Ref ECSBackEndTaskName
-      Memory: 2048
+      Memory: 1024
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -126,7 +125,9 @@ Resources:
           ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: "DISABLED"
+          # ここをDISABLEDにするとECRに接続できなくなってImagePull失敗する。
+          # OR natをつけてImageをとってこれるようにする
+          AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
