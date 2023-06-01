@@ -1,6 +1,5 @@
-# TODO クラスターを立ち上げれるようにする
-# まずはコンソール画面でbackendを立ち上げれるように
-# それかECSの所はクラスターの所まで記載しておいて、serviceとtaskは一旦手動で定義していくのがいいかも
+# TODO サービスディスカばりをつけた状態で立ち上げできるようにする
+# TODO BKのコンテナをprivateにおいてNATをつけてfrontと通信できるようにする
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS BackEnd Task & Service
@@ -23,11 +22,17 @@ Parameters:
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
   # SSMから取得
-  PublicSubnetAId: # 受け取る値を定義する
+  # Service Discovery用に用意
+  VpcId: # 受け取る値を定義する
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
+
+  PublicSubnetAId:
+    # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PublicSubnetAId
 
-  PublicSubnetCId: # 受け取る値を定義する
+  PublicSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PublicSubnetCId
 
@@ -43,7 +48,7 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/TargetGroup
 
-  ECSTaskExecutionRole: # 受け取る値を定義する
+  ECSTaskExecutionRole:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/ECSTaskExecutionRole
 
@@ -53,26 +58,26 @@ Parameters:
 
 Resources:
   # BackEnd
-  # ########################################################
-  # ###  Service Discovery for BackEnd Service
-  # ########################################################
-  # PrivateDnsNamespace:
-  #   Type: AWS::ServiceDiscovery::PrivateDnsNamespace
-  #   Properties:
-  #     Vpc: !Ref VpcId
-  #     Name: "odekakekun-local"
+  ########################################################
+  ###  Service Discovery for BackEnd Service
+  ########################################################
+  PrivateDnsNamespace:
+    Type: AWS::ServiceDiscovery::PrivateDnsNamespace
+    Properties:
+      Vpc: !Ref VpcId
+      Name: "odekakekun-local"
 
-  # ServiceDiscovery:
-  #   Type: AWS::ServiceDiscovery::Service
-  #   Properties:
-  #     HealthCheckCustomConfig:
-  #       FailureThreshold: 1
-  #     DnsConfig:
-  #       DnsRecords:
-  #         - Type: A
-  #           TTL: 60
-  #       NamespaceId: !GetAtt PrivateDnsNamespace.Id
-  #     Name: "odekakekun-service-discovery"
+  ServiceDiscovery:
+    Type: AWS::ServiceDiscovery::Service
+    Properties:
+      HealthCheckCustomConfig:
+        FailureThreshold: 1
+      DnsConfig:
+        DnsRecords:
+          - Type: A
+            TTL: 60
+        NamespaceId: !GetAtt PrivateDnsNamespace.Id
+      Name: "odekakekun-service-discovery"
 
   ########################################################
   ###  ECS BackEnd TaskDefinition

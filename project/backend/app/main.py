@@ -12,6 +12,7 @@ from routes.login import router as login_router
 app = FastAPI()
 
 # フロントエンドからのリクエストを受け入れるために、CORSを設定する
+# TODO RDBにアクセスできるようにする
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
