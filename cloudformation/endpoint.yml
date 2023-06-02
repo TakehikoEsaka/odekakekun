@@ -2,17 +2,27 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Create Endpoint
 
 Parameters:
-  VpcId: # 受け取る値を定義する
+  VpcId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /odekakekun-values/VPCId
 
-  PrivateSubnetAId: # 受け取る値を定義する
+  # Interfaceタイプ用
+  PrivateSubnetAId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PrivateSubnetAId
 
-  PrivateSubnetCId: # 受け取る値を定義する
+  PrivateSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PrivateSubnetCId
+
+  # Gatewayタイプ用
+  PrivateRouteTableA:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/PrivateRouteTableA
+
+  PrivateRouteTableC:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /odekakekun-values/PrivateRouteTableC
 
 Resources:
   ########################################################
@@ -77,6 +87,10 @@ Resources:
             }
           ]
         }
+      RouteTableIds:
+        - !Ref PrivateRouteTableA
+        - !Ref PrivateRouteTableC
+
       # ここはInterface型の時のみ指定出来るパラメータでGatewayの時は指定しない
       # SubnetIds:
       #   - !Ref PrivateSubnetAId
@@ -204,7 +218,8 @@ Resources:
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
-  # ECSの場合は必要だがFargateの場合は必要なし
+
+  # 以下はEC2の場合は必要。Fargateの場合は必要なし
   # EC2VPCEndpointEcsAgent:
   #   Type: "AWS::EC2::VPCEndpoint"
   #   Properties:
