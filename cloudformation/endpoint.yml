@@ -6,13 +6,13 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /odekakekun-values/VPCId
 
-  PublicSubnetAId: # 受け取る値を定義する
+  PrivateSubnetAId: # 受け取る値を定義する
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
+    Default: /odekakekun-values/PrivateSubnetAId
 
-  PublicSubnetCId: # 受け取る値を定義する
+  PrivateSubnetCId: # 受け取る値を定義する
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
+    Default: /odekakekun-values/PrivateSubnetCId
 
 Resources:
   ########################################################
@@ -32,6 +32,7 @@ Resources:
         - IpProtocol: "-1"
           CidrIp: "0.0.0.0/0"
 
+  # TODO 必要なエンドポイントとつけるべき場所を特定する
   ########################################################
   ### Endpoints
   ########################################################
@@ -53,8 +54,8 @@ Resources:
           ]
         }
       SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
@@ -62,7 +63,7 @@ Resources:
   EC2VPCEndpointS3:
     Type: "AWS::EC2::VPCEndpoint"
     Properties:
-      VpcEndpointType: "Interface"
+      VpcEndpointType: "Gateway"
       VpcId: !Ref VpcId
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
       PolicyDocument: |
@@ -76,12 +77,13 @@ Resources:
             }
           ]
         }
-      SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
-      PrivateDnsEnabled: false
-      SecurityGroupIds:
-        - !Ref VPCEndpointSecurityGroupId
+      # ここはInterface型の時のみ指定出来るパラメータでGatewayの時は指定しない
+      # SubnetIds:
+      #   - !Ref PrivateSubnetAId
+      #   - !Ref PrivateSubnetCId
+      # PrivateDnsEnabled: false
+      # SecurityGroupIds:
+      #   - !Ref VPCEndpointSecurityGroupId
 
   EC2VPCEndpointEcrApi:
     Type: "AWS::EC2::VPCEndpoint"
@@ -101,80 +103,8 @@ Resources:
           ]
         }
       SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
-      PrivateDnsEnabled: true
-      SecurityGroupIds:
-        - !Ref VPCEndpointSecurityGroupId
-
-  EC2VPCEndpointEcsAgent:
-    Type: "AWS::EC2::VPCEndpoint"
-    Properties:
-      VpcEndpointType: "Interface"
-      VpcId: !Ref VpcId
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecs-agent"
-      PolicyDocument: |
-        {
-          "Statement": [
-            {
-              "Action": "*", 
-              "Effect": "Allow", 
-              "Principal": "*", 
-              "Resource": "*"
-            }
-          ]
-        }
-      SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
-      PrivateDnsEnabled: true
-      SecurityGroupIds:
-        - !Ref VPCEndpointSecurityGroupId
-
-  EC2VPCEndpointEcsTelemetry:
-    Type: "AWS::EC2::VPCEndpoint"
-    Properties:
-      VpcEndpointType: "Interface"
-      VpcId: !Ref VpcId
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecs-telemetry"
-      PolicyDocument: |
-        {
-          "Statement": [
-            {
-              "Action": "*", 
-              "Effect": "Allow", 
-              "Principal": "*", 
-              "Resource": "*"
-            }
-          ]
-        }
-      SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
-      PrivateDnsEnabled: true
-      SecurityGroupIds:
-        - !Ref VPCEndpointSecurityGroupId
-
-  EC2VPCEndpointEcs:
-    Type: "AWS::EC2::VPCEndpoint"
-    Properties:
-      VpcEndpointType: "Interface"
-      VpcId: !Ref VpcId
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecs"
-      PolicyDocument: |
-        {
-          "Statement": [
-            {
-              "Action": "*", 
-              "Effect": "Allow", 
-              "Principal": "*", 
-              "Resource": "*"
-            }
-          ]
-        }
-      SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
@@ -197,8 +127,8 @@ Resources:
           ]
         }
       SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
@@ -221,8 +151,8 @@ Resources:
           ]
         }
       SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
@@ -245,8 +175,8 @@ Resources:
           ]
         }
       SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
@@ -269,8 +199,80 @@ Resources:
           ]
         }
       SubnetIds:
-        - !Ref PublicSubnetAId
-        - !Ref PublicSubnetCId
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
       PrivateDnsEnabled: true
       SecurityGroupIds:
         - !Ref VPCEndpointSecurityGroupId
+  # ECSの場合は必要だがFargateの場合は必要なし
+  # EC2VPCEndpointEcsAgent:
+  #   Type: "AWS::EC2::VPCEndpoint"
+  #   Properties:
+  #     VpcEndpointType: "Interface"
+  #     VpcId: !Ref VpcId
+  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecs-agent"
+  #     PolicyDocument: |
+  #       {
+  #         "Statement": [
+  #           {
+  #             "Action": "*",
+  #             "Effect": "Allow",
+  #             "Principal": "*",
+  #             "Resource": "*"
+  #           }
+  #         ]
+  #       }
+  #     SubnetIds:
+  #       - !Ref PrivateSubnetAId
+  #       - !Ref PrivateSubnetCId
+  #     PrivateDnsEnabled: true
+  #     SecurityGroupIds:
+  #       - !Ref VPCEndpointSecurityGroupId
+
+  # EC2VPCEndpointEcsTelemetry:
+  #   Type: "AWS::EC2::VPCEndpoint"
+  #   Properties:
+  #     VpcEndpointType: "Interface"
+  #     VpcId: !Ref VpcId
+  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecs-telemetry"
+  #     PolicyDocument: |
+  #       {
+  #         "Statement": [
+  #           {
+  #             "Action": "*",
+  #             "Effect": "Allow",
+  #             "Principal": "*",
+  #             "Resource": "*"
+  #           }
+  #         ]
+  #       }
+  #     SubnetIds:
+  #       - !Ref PrivateSubnetAId
+  #       - !Ref PrivateSubnetCId
+  #     PrivateDnsEnabled: true
+  #     SecurityGroupIds:
+  #       - !Ref VPCEndpointSecurityGroupId
+
+  # EC2VPCEndpointEcs:
+  #   Type: "AWS::EC2::VPCEndpoint"
+  #   Properties:
+  #     VpcEndpointType: "Interface"
+  #     VpcId: !Ref VpcId
+  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecs"
+  #     PolicyDocument: |
+  #       {
+  #         "Statement": [
+  #           {
+  #             "Action": "*",
+  #             "Effect": "Allow",
+  #             "Principal": "*",
+  #             "Resource": "*"
+  #           }
+  #         ]
+  #       }
+  #     SubnetIds:
+  #       - !Ref PrivateSubnetAId
+  #       - !Ref PrivateSubnetCId
+  #     PrivateDnsEnabled: true
+  #     SecurityGroupIds:
+  #       - !Ref VPCEndpointSecurityGroupId
