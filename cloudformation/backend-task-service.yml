@@ -98,8 +98,6 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-
-      #ContainerDefinitions
       ContainerDefinitions:
         - Name: !Ref ECSBackEndContainerName
           Image: !Ref ECSBackEndImageName
@@ -121,8 +119,6 @@ Resources:
   ########################################################
   ECSBackendService:
     Type: AWS::ECS::Service
-    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
-    # DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
       EnableExecuteCommand: true # ECS-EXEC用
