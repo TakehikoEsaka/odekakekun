@@ -1,5 +1,11 @@
+# TODO ECS EXECできるようにする
 # TODO サービスディスカばりをつけた状態で立ち上げできるようにする
-# TODO BKのコンテナをprivateにおいてNATをつけてfrontと通信できるようにする
+#### PLAN 適当な軽いイメージを作ってサービス名の名前解決ができることを確認する
+# TODO BKのコンテナをprivateにおいたた時NATはつける必要があるのか？
+# TODO いらないアクセスルートは随時抜いておく
+# TODO AutoScaleを入れれたら入れておく
+# TODO RDBのセットアップ
+# TODO テンプレートをまとめる（参考：https://github.com/aws-samples/startup-kit-templates/blob/master/vpc-bastion-fargate.cfn.yml
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS BackEnd Task & Service
@@ -86,6 +92,7 @@ Resources:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
       Cpu: 512
+      TaskRoleArn: !Ref ECSTaskExecutionRole
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       Family: !Ref ECSBackEndTaskName
       Memory: 1024
@@ -119,6 +126,7 @@ Resources:
     # DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
+      EnableExecuteCommand: true # ECS-EXEC用
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
