@@ -248,6 +248,20 @@ Resources:
       Type: String
       Value: !Ref "PublicSubnetC"
 
+  SSMPrivateSubnetAId:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /odekakekun-values/PrivateSubnetAId
+      Type: String
+      Value: !Ref "PrivateSubnetA"
+
+  SSMPrivateSubnetCId:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /odekakekun-values/PrivateSubnetCId
+      Type: String
+      Value: !Ref "PrivateSubnetC"
+
 # ------------------------------------------------------------#
 # Output Parameters
 # ------------------------------------------------------------#

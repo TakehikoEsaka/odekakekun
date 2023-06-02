@@ -27,19 +27,19 @@ Parameters:
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
   # SSMから取得
-  # Service Discovery用に用意
-  VpcId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
-    Default: /odekakekun-values/VPCId
-
-  PublicSubnetAId:
+  PrivateSubnetAId:
     # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
+    Default: /odekakekun-values/PrivateSubnetAId
 
-  PublicSubnetCId:
+  PrivateSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
+    Default: /odekakekun-values/PrivateSubnetCId
+
+  ## Service Discovery用に用意
+  VpcId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
 
   ECSCluster:
     Type: AWS::SSM::Parameter::Value<String>
@@ -131,19 +131,18 @@ Resources:
       PlatformVersion: "1.4.0"
       ServiceRegistries:
         - RegistryArn: !GetAtt ServiceDiscovery.Arn
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroup
-          ContainerPort: 80
-          ContainerName: !Ref ECSBackEndContainerName
+      # サービスディスカバリを使うのでALBは紐付けない
+      # LoadBalancers:
+      #   - TargetGroupArn: !Ref TargetGroup
+      #     ContainerPort: 80
+      #     ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
-          # ここをDISABLEDにするとECRに接続できなくなってImagePull失敗する。
-          # OR natをつけてImageをとってこれるようにする
-          AssignPublicIp: ENABLED
+          AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
+            - !Ref PrivateSubnetAId
+            - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition
