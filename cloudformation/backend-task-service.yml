@@ -70,7 +70,7 @@ Resources:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
     Properties:
       Vpc: !Ref VpcId
-      Name: "odekakekun-local"
+      Name: "odekakekun-network"
 
   ServiceDiscovery:
     Type: AWS::ServiceDiscovery::Service
@@ -82,7 +82,7 @@ Resources:
           - Type: A
             TTL: 60
         NamespaceId: !GetAtt PrivateDnsNamespace.Id
-      Name: "odekakekun-service-discovery"
+      Name: "service-discovery"
 
   ########################################################
   ###  ECS BackEnd TaskDefinition
