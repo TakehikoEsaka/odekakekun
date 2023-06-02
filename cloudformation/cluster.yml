@@ -6,14 +6,6 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /odekakekun-values/VPCId
 
-  PublicSubnetAId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
-
-  PublicSubnetCId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
-
   TargetGroup:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/TargetGroup

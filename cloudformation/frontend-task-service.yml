@@ -104,6 +104,7 @@ Resources:
           ContainerName: !Ref ECSFrontEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
+          # ここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
           AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
