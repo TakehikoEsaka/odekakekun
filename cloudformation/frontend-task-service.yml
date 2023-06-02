@@ -1,3 +1,4 @@
+# TODO ecs-execのenableは後からするようにしてるがcloudformationでもできるようにしたい
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS FrontEnd Task & Service
 
@@ -57,6 +58,9 @@ Resources:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
       Cpu: 512
+      # コンテナで利用するrole
+      TaskRoleArn: !Ref ECSTaskExecutionRole
+      # ecs-agent用のrole
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       Family: !Ref ECSFrontEndTaskName
       Memory: 1024
@@ -93,6 +97,7 @@ Resources:
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
+      EnableExecuteCommand: true
       LoadBalancers:
         - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
