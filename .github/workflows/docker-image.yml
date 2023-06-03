@@ -9,43 +9,27 @@ on:
     branches: ["main"]
 
 jobs:
-  docker-build:
-    name: Build
+  frontend-test:
     runs-on: ubuntu-latest
-    environment: production
-
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
-      # echo $GITHUB_WORKSPACE -> /home/runner/work/odekakekun/odekakekun
-      - uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Cache Docker layers
-        uses: actions/cache@v2
+      - uses: actions/checkout@v2
+      - name: Use Node.js v14.13.1
+        uses: actions/setup-node@v1
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          node-version: "14.13.1"
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Build the Docker image
-        uses: docker/build-push-action@v4
-        with:
-          push: false
-          tags: backend-image:${{ github.sha }}
-          context: project/backend
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+            ${{ runner.os }}-yarn-
+      - run: yarn install
+      - run: yarn test
 
   backend-test:
     runs-on: ubuntu-latest
@@ -87,3 +71,42 @@ jobs:
         #   # add environment variables for tests
         run: |
           pytest
+
+  # TODO ECRにImageをPUSHする
+  docker-build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # echo $GITHUB_WORKSPACE -> /home/runner/work/odekakekun/odekakekun
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          tags: backend-image:${{ github.sha }}
+          context: project/backend
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
