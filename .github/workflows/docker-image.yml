@@ -29,6 +29,8 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
@@ -36,11 +38,11 @@ jobs:
           pip install flake8
           if [ -f ./project/backend/requirements.txt ]; then pip install -r ./project/backend/requirements.txt; fi
 
-      - name: Save pip cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      # - name: Save pip cache
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
       - name: Static Code Linting with flake8
         run: |
