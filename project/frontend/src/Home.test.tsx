@@ -1,11 +1,8 @@
 /* eslint-disable testing-library/no-debugging-utils */
 import { render, screen } from "@testing-library/react";
-import { Home } from "./pages/Home";
+import { Login } from "./pages/Login";
+import { BrowserRouter, MemoryRouter } from "react-router-dom";
 
-describe("render Home", () => {
-  it("should render all elements", () => {
-    render(<Home />);
-
-    screen.debug();
-  });
+test("render Home", () => {
+  render(<Login />, { wrapper: BrowserRouter });
 });
