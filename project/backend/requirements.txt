@@ -17,3 +17,4 @@ pytest
 httpx
 sqlalchemy_utils
 pytest-timeout
+pandas
