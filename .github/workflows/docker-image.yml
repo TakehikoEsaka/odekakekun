@@ -9,9 +9,9 @@ on:
     branches: ["main"]
 
 jobs:
+  # TODO Frontのテストを通るようにする
   frontend-test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js v14.13.1
@@ -31,6 +31,7 @@ jobs:
       - run: if [ -f ./project/frontend/package.json ]; then yarn install -r ./project/frontend/package.json; fi
       - run: yarn test
 
+  # TODO PytestのSTEPが通らないので通るようにしておく
   backend-test:
     runs-on: ubuntu-latest
     strategy:
@@ -84,7 +85,6 @@ jobs:
       contents: read
 
     steps:
-      # echo $GITHUB_WORKSPACE -> /home/runner/work/odekakekun/odekakekun
       - uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
