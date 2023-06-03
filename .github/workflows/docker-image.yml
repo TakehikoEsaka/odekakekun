@@ -29,7 +29,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: if [ -f ./project/frontend/package.json ]; then yarn install -r ./project/frontend/package.json; fi
-      - run: yarn test
+      - run: |
+          cd ./project/frontend/
+          yarn test
 
   # TODO PytestのSTEPが通らないので通るようにしておく
   backend-test:
