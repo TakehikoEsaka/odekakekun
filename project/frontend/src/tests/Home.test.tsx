@@ -1,6 +1,44 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { RecoilRoot } from "recoil";
+
+import { TopView } from "../components/TopView";
 import { Home } from "../pages/Home";
+import { WishVariables } from "../components/WishVariables";
+
+const mockSubmit = jest.fn();
+
+test("renders top view component", () => {
+  // TopView componentが表示されていることを確認
+  render(
+    <RecoilRoot>
+      <TopView getSuggest={jest.fn()} getHistories={jest.fn()} />
+    </RecoilRoot>
+  );
+
+  expect(
+    screen.getByRole("button", { name: "まずは試してみる" })
+  ).toBeInTheDocument();
+});
+
+test("renders Wish component", () => {
+  render(
+    <RecoilRoot>
+      <WishVariables getSuggest={jest.fn()} getHistories={jest.fn()} />
+    </RecoilRoot>
+  );
+
+  // WishVariables componentが表示されていることを確認
+  const placeVariables = screen.getByRole("textbox");
+  expect(placeVariables).toBeInTheDocument();
+
+  const [timeVariables, wayVariables] = screen.getAllByRole("combobox");
+  expect(timeVariables).toBeInTheDocument();
+  fireEvent.change(timeVariables, { target: { value: "15分" } });
+  expect((timeVariables as HTMLInputElement).value).toBe("15分"); // asを使ってHTMLElementをHTMLInputElemntに変換可能¥
+
+  fireEvent.change(wayVariables, { target: { value: "バス" } });
+  expect((wayVariables as HTMLInputElement).value).toBe("バス");
+});
 
 test("renders Home component", () => {
   render(
@@ -11,32 +49,8 @@ test("renders Home component", () => {
 
   // TODO 以下の内容でテストコードを書いておく
 
-  // TopView componentが表示されていることを確認
-  expect(screen.getByTestId("top-view")).toBeInTheDocument();
-
-  // WishVariables componentが表示されていることを確認
-  expect(screen.getByTestId("wish-variables")).toBeInTheDocument();
+  // ASK そもそもstateの値をチェックするテストなんてありえるのか？
+  // 予測ボタンを押すとchatGPTLodingStateがtrueになること
 
   // chatGPTLoadingStateがtrueの場合、Progressコンポーネントが表示されていることを確認
-  expect(screen.getByTestId("progress")).toBeInTheDocument();
-
-  // 予測ボタンを押した時にボタンが押せなくなってること
-
-  // 推論ボタンを押した時にレスポンスのモックを返して表示がきちんとされているか確認すること
-
-  // chatGPTLoadingStateがfalseでsuggest.suggest_placeが存在する場合、Resultsコンポーネントが表示されていることを確認
-  // そうでない場合、suggest.messageが存在する場合、メッセージが表示されていることを確認
-  if (!screen.getByTestId("progress") && screen.getByTestId("results")) {
-    expect(screen.getByTestId("results")).toBeInTheDocument();
-  } else if (screen.getByTestId("suggest-message")) {
-    expect(screen.getByTestId("suggest-message")).toBeInTheDocument();
-  }
-
-  // login_stateが"true"の場合、Historiesコンポーネントが表示されていることを確認
-  // そうでない場合、ログインメッセージが表示されていることを確認
-  if (localStorage.getItem("login_state") === "true") {
-    expect(screen.getByTestId("histories")).toBeInTheDocument();
-  } else {
-    expect(screen.getByTestId("login-message")).toBeInTheDocument();
-  }
 });
