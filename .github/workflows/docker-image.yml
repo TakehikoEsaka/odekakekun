@@ -1,5 +1,5 @@
-# TODO Dokcerの中でテストを動かすべきなのか？
-# TODO DockerのImage Buildと分けてactionファイルを管理しておく
+# TODO Backendのpytestが走るようにする
+# TODO Frontendのreat-testing-libraryが走るようにする
 name: "Build Docker Image & Test"
 
 on:
