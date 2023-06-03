@@ -4,7 +4,7 @@ name: "Build Docker Image & Test"
 
 on:
   push:
-    branches: ["main", "feature/#9"]
+    branches: ["main", "feature/#10"]
   pull_request:
     branches: ["main"]
 
