@@ -145,10 +145,15 @@ Resources:
       GroupName: rds-security-group
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
+          FromPort: 5432
+          ToPort: 5432
           # TODO private netの数字に合わせておく
-          CidrIp: 0.0.0.0/0
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          # TODO private netの数字に合わせておく
+          CidrIp: 10.1.200.0/24
 
   PostgresDB:
     Type: AWS::RDS::DBInstance

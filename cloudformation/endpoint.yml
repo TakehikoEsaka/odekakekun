@@ -38,7 +38,13 @@ Resources:
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          CidrIp: 0.0.0.0/0
+          # TODO private netの数字に合わせておく
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          # TODO private netの数字に合わせておく
+          CidrIp: 10.1.200.0/24
 
   # TODO 必要なエンドポイントとつけるべき場所を特定する
   ########################################################
