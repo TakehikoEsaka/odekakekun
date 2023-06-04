@@ -6,15 +6,20 @@ import os
 # TODO appからみた相対パスになってるのでposix pathに直す
 # ASK コンテナで管理している時もpytestで仮のDBを作るのは自分のproject内部でよいか -> よいはず
 
+# TODO AWSでRDSにつなげるか確認する
+# 参考https://repost.aws/ja/knowledge-center/ecs-fargate-task-database-connection
+
+DEPLOYMENT_STAGE = os.getenv("DEPLOYMENT_STAGE")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+
 conf ={
     'host':"anonymousendpoint.amazonaws.com",
     'port':'5432',
     'database':"DBname",
-    'user':"Project",
-    'password':"secret"
+    'user':DB_USER,
+    'password':DB_PASSWORD
 }
-
-DEPLOYMENT_STAGE = os.getenv("DEPLOYMENT_STAGE")
 
 if DEPLOYMENT_STAGE == "production" or "test" :
     engine = create_engine("sqlite:///./db/user.db", connect_args={"check_same_thread" : False})
