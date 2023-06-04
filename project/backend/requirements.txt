@@ -18,3 +18,4 @@ httpx
 sqlalchemy_utils
 pytest-timeout
 pandas
+psycopg2-binary
