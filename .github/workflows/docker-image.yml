@@ -1,5 +1,3 @@
-# TODO Backendのpytestが走るようにする
-# TODO Frontendのreat-testing-libraryが走るようにする
 name: "Build Docker Image & Test"
 
 on:
@@ -10,6 +8,7 @@ on:
 
 jobs:
   # TODO Frontのテストを通るようにする
+  #https://github.com/TakehikoEsaka/odekakekun/actions/runs/5163318676/jobs/9301574218
   frontend-test:
     runs-on: ubuntu-latest
     steps:
@@ -29,8 +28,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: if [ -f ./project/frontend/package.json ]; then yarn install -r ./project/frontend/package.json; fi
+      # ディレクトリ移動は維持される
       - run: |
           cd ./project/frontend/
+          ls
           yarn test
 
   # TODO PytestのSTEPが通らないので通るようにしておく
@@ -77,6 +78,7 @@ jobs:
           pytest
 
   # TODO ECRにImageをPUSHする
+  # https://github.com/TakehikoEsaka/odekakekun/actions/runs/5163318676/jobs/9301574218
   docker-build:
     name: Build
     runs-on: ubuntu-latest
