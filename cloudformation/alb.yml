@@ -2,15 +2,15 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: LoadBalancer
 
 Parameters:
-  VpcId: # 受け取る値を定義する
+  VpcId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /odekakekun-values/VPCId
 
-  PublicSubnetAId: # 受け取る値を定義する
+  PublicSubnetAId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PublicSubnetAId
 
-  PublicSubnetCId: # 受け取る値を定義する
+  PublicSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PublicSubnetCId
 
@@ -41,7 +41,7 @@ Resources:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward
       LoadBalancerArn: !Ref InternetAlb
-      # ここをHTTPSでアクセス出来るようにしたい
+      # TODO HTTPS対応
       Port: 80
       Protocol: HTTP
 
@@ -67,20 +67,22 @@ Resources:
       VpcId: !Ref VpcId
       GroupName: elb-security-group
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 80
-        ToPort: 80
-        CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          # TODO ここは自分がアクセスするIPだけに絞っておきたい
+          # TODO SSL化対応しておけたらやっておく
+          CidrIp: 0.0.0.0/0
 
   ########################################################
   ### SSM Parameter
   ########################################################
-  SSMPublicSubnetCId: 
+  SSMPublicSubnetCId:
     Type: AWS::SSM::Parameter
     Properties:
       Name: /odekakekun-values/TargetGroup
       Type: String
-      Value: !Ref 'TargetGroup'
+      Value: !Ref "TargetGroup"
 
 Outputs:
   TargetGroup:

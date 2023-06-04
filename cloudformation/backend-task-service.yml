@@ -1,4 +1,3 @@
-# TODO サービスディスカばりをつけた状態で立ち上げできるようにする
 # TODO BKのコンテナをprivateにおいてNATをつけてfrontと通信できるようにする
 
 AWSTemplateFormatVersion: "2010-09-09"
@@ -137,3 +136,31 @@ Resources:
             - !Ref PublicSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition
+
+  ########################################################
+  ###  Postgres Database
+  ########################################################
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS Security Group
+      VpcId: !Ref VpcId
+      GroupName: rds-security-group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          # TODO private netの数字に合わせておく
+          CidrIp: 0.0.0.0/0
+
+  PostgresDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBSecurityGroups:
+        - !Ref: ECSSecurityGroupId
+      AllocatedStorage: "20"
+      DBInstanceClass: db.t4g.micro
+      Engine: Postgres
+      MasterUsername: postgres
+      MasterUserPassword: postgres-password
+    DeletionPolicy: Snapshot
