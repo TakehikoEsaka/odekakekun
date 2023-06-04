@@ -19,13 +19,14 @@ Parameters:
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-frontend"
 
   # SSMから取得
-  PublicSubnetAId:
+  PrivateSubnetAId:
+    # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
+    Default: /odekakekun-values/PrivateSubnetAId
 
-  PublicSubnetCId:
+  PrivateSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
+    Default: /odekakekun-values/PrivateSubnetCId
 
   ECSCluster:
     Type: AWS::SSM::Parameter::Value<String>
@@ -99,11 +100,11 @@ Resources:
       NetworkConfiguration:
         AwsvpcConfiguration:
           # もしIG/NAtがないsubnetでここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
-          AssignPublicIp: ENABLED
+          AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
+            - !Ref PrivateSubnetAId
+            - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSFrontEndServiceName
       TaskDefinition: !Ref ECSFrontEndTaskDefinition
