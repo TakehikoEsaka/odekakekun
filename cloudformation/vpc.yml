@@ -248,6 +248,34 @@ Resources:
       Type: String
       Value: !Ref "PublicSubnetC"
 
+  SSMPrivateSubnetAId:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /odekakekun-values/PrivateSubnetAId
+      Type: String
+      Value: !Ref "PrivateSubnetA"
+
+  SSMPrivateSubnetCId:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /odekakekun-values/PrivateSubnetCId
+      Type: String
+      Value: !Ref "PrivateSubnetC"
+
+  SSMPrivateRouteTableA:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /odekakekun-values/PrivateRouteTableA
+      Type: String
+      Value: !Ref "PrivateRouteTableA"
+
+  SSMPrivateRouteTableC:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /odekakekun-values/PrivateRouteTableC
+      Type: String
+      Value: !Ref "PrivateRouteTableC"
+
 # ------------------------------------------------------------#
 # Output Parameters
 # ------------------------------------------------------------#

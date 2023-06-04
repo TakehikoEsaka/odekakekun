@@ -1,4 +1,6 @@
-# TODO BKのコンテナをprivateにおいてNATをつけてfrontと通信できるようにする
+# TODO AutoScaleを入れれたら入れておく
+# TODO RDBのセットアップ
+# TODO テンプレートをまとめる（参考：https://github.com/aws-samples/startup-kit-templates/blob/master/vpc-bastion-fargate.cfn.yml
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS BackEnd Task & Service
@@ -21,19 +23,19 @@ Parameters:
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
   # SSMから取得
-  # Service Discovery用に用意
-  VpcId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
-    Default: /odekakekun-values/VPCId
-
-  PublicSubnetAId:
+  PrivateSubnetAId:
     # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
+    Default: /odekakekun-values/PrivateSubnetAId
 
-  PublicSubnetCId:
+  PrivateSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
+    Default: /odekakekun-values/PrivateSubnetCId
+
+  ## Service Discovery用に用意
+  VpcId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
 
   ECSCluster:
     Type: AWS::SSM::Parameter::Value<String>
@@ -60,7 +62,7 @@ Resources:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
     Properties:
       Vpc: !Ref VpcId
-      Name: "odekakekun-local"
+      Name: "odekakekun-network"
 
   ServiceDiscovery:
     Type: AWS::ServiceDiscovery::Service
@@ -72,7 +74,7 @@ Resources:
           - Type: A
             TTL: 60
         NamespaceId: !GetAtt PrivateDnsNamespace.Id
-      Name: "odekakekun-service-discovery"
+      Name: "service-discovery"
 
   ########################################################
   ###  ECS BackEnd TaskDefinition
@@ -81,14 +83,13 @@ Resources:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
       Cpu: 512
+      TaskRoleArn: !Ref ECSTaskExecutionRole
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       Family: !Ref ECSBackEndTaskName
       Memory: 1024
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-
-      #ContainerDefinitions
       ContainerDefinitions:
         - Name: !Ref ECSBackEndContainerName
           Image: !Ref ECSBackEndImageName
@@ -110,30 +111,26 @@ Resources:
   ########################################################
   ECSBackendService:
     Type: AWS::ECS::Service
-    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
-    # DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
+      EnableExecuteCommand: true # ECS-EXEC用
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
-      ServiceRegistries:
-        - RegistryArn: !GetAtt ServiceDiscovery.Arn
-      # サービスディスカバリを使ってBKのコンテナにアクセスするのでALBは使用しない
-      # LoadBalancers:
-      #   - TargetGroupArn: !Ref TargetGroup
-      #     ContainerPort: 80
-      #     ContainerName: !Ref ECSBackEndContainerName
+      # ServiceRegistries:
+      #   - RegistryArn: !GetAtt ServiceDiscovery.Arn
+      LoadBalancers:
+        - TargetGroupArn: !Ref TargetGroup
+          ContainerPort: 80
+          ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
-          # ここをDISABLEDにするとECRに接続できなくなってImagePull失敗する。
-          # OR natをつけてImageをとってこれるようにする
-          AssignPublicIp: ENABLED
+          AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
+            - !Ref PrivateSubnetAId
+            - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition
 

@@ -6,14 +6,6 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /odekakekun-values/VPCId
 
-  PublicSubnetAId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
-
-  PublicSubnetCId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
-
   #ECSCluster
   ECSClusterName:
     Type: String
@@ -74,6 +66,23 @@ Resources:
       ManagedPolicyArns:
         # AWS側でデフォルトでついているものを利用する
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  EcsExecRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: Ecs-exec-role
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "ssmmessages:CreateControlChannel"
+              - "ssmmessages:CreateDataChannel"
+              - "ssmmessages:OpenControlChannel"
+              - "ssmmessages:OpenDataChannel"
+            Resource: "*"
+      Roles:
+        - Ref: ECSTaskExecutionRole
 
   # ------------------------------------------------------------#
   #  Parameter Store
