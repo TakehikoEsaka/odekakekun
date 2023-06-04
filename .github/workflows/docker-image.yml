@@ -33,10 +33,10 @@ jobs:
           ls
           yarn install
       # ディレクトリ移動は維持される
-      # - run: |
-      #     cd ./project/frontend/
-      #     ls
-      #     yarn test
+      - run: |
+          cd ./project/frontend/
+          ls
+          yarn test
 
   # TODO PytestのSTEPが通らないので通るようにしておく
   backend-test:
