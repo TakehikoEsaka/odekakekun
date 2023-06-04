@@ -93,6 +93,19 @@ Resources:
       ContainerDefinitions:
         - Name: !Ref ECSBackEndContainerName
           Image: !Ref ECSBackEndImageName
+          # TODO PRODUCTION STAGEを指定する
+          Environment:
+            - Name: DEPLOYMENT_STAGE
+              Value: deployment
+          # TODO SSMからDBのユーザー名とパスワードを取得する
+          # 参考：https://dev.classmethod.jp/articles/cfn-ecs-secrets/
+          Secrets:
+            - Name: DB_USER
+              ValueFrom: ssm-db-user
+            - Name: DB_PASSWORD
+              ValueFrom: ssm-db-password
+            # DBのENDPOINTも指定する
+            # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -138,8 +151,9 @@ Resources:
 
   ########################################################
   ###  Postgres Database
+  # TODO TRY ERRORするならここだけ切り出してもいいかも
   ########################################################
-  RDSSecurityGroup:
+  PostgresSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: RDS Security Group
@@ -149,21 +163,35 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          # TODO private netの数字に合わせておく
           CidrIp: 10.1.100.0/24
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          # TODO private netの数字に合わせておく
           CidrIp: 10.1.200.0/24
+
+  # DBのSubnetGroupはAZが違う所を入れておくことで冗長性を担保
+  PostgresSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Sub "Database subnet group"
+      SubnetIds:
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
 
   PostgresDB:
     Type: AWS::RDS::DBInstance
+    DependsOn:
+      - PostgresSG
+      - PostgresSubnetGroup
     Properties:
-      DBSecurityGroups:
-        - !Ref RDSSecurityGroup
+      VPCSecurityGroups:
+        - !Ref PostgresSG
       AllocatedStorage: "20"
       DBInstanceClass: db.t4g.micro
       Engine: postgres
+      EngineVersion: "13.3"
       MasterUsername: postgres
-      MasterUserPassword: postgres-password
+      # ここをtrueにすると自動でSSMにPASSがが生成されて登録される
+      ManageMasterUserPassword: true
+      DBSubnetGroupName: !Ref PostgresSubnetGroup
+      MultiAZ: false
