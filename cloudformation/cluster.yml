@@ -14,10 +14,6 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PublicSubnetCId
 
-  TargetGroup:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /odekakekun-values/TargetGroup
-
   #ECSCluster
   ECSClusterName:
     Type: String
