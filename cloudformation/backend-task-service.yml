@@ -44,10 +44,6 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/ECSLogGroup
 
-  TargetGroup:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /odekakekun-values/TargetGroup
-
   ECSTaskExecutionRole:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/ECSTaskExecutionRole
@@ -122,12 +118,13 @@ Resources:
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
-      # ServiceRegistries:
-      #   - RegistryArn: !GetAtt ServiceDiscovery.Arn
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroup
-          ContainerPort: 80
-          ContainerName: !Ref ECSBackEndContainerName
+      ServiceRegistries:
+        - RegistryArn: !GetAtt ServiceDiscovery.Arn
+      # サービスディスカバリを使ってBKのコンテナにアクセスするのでALBは使用しない
+      # LoadBalancers:
+      #   - TargetGroupArn: !Ref TargetGroup
+      #     ContainerPort: 80
+      #     ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
           # ここをDISABLEDにするとECRに接続できなくなってImagePull失敗する。
