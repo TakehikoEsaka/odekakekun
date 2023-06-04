@@ -89,11 +89,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     environment: production
-
+    needs: [frontend-test, backend-test]
     permissions:
       id-token: write
       contents: read
-
     steps:
       - uses: actions/checkout@v3
 
