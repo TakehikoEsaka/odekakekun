@@ -79,6 +79,8 @@ jobs:
         # env:
         #   # add environment variables for tests
         run: |
+          cd ./project/backend/
+          ls
           pytest
 
   # TODO ECRにImageをPUSHする
