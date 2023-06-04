@@ -117,12 +117,14 @@ Resources:
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
-      # ServiceRegistries:
-      #   - RegistryArn: !GetAtt ServiceDiscovery.Arn
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroup
-          ContainerPort: 80
-          ContainerName: !Ref ECSBackEndContainerName
+      #BKはサービスディスカバリを通じてFRONTとやりとりする
+      ServiceRegistries:
+        - RegistryArn: !GetAtt ServiceDiscovery.Arn
+      # BKはALBとは直接通信しない
+      # LoadBalancers:
+      #   - TargetGroupArn: !Ref TargetGroup
+      #     ContainerPort: 80
+      #     ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
@@ -159,10 +161,9 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       DBSecurityGroups:
-        - !Ref: ECSSecurityGroupId
+        - !Ref RDSSecurityGroup
       AllocatedStorage: "20"
       DBInstanceClass: db.t4g.micro
-      Engine: Postgres
+      Engine: postgres
       MasterUsername: postgres
       MasterUserPassword: postgres-password
-    DeletionPolicy: Snapshot
