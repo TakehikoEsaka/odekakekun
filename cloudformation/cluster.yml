@@ -84,6 +84,9 @@ Resources:
               - "ssmmessages:CreateDataChannel"
               - "ssmmessages:OpenControlChannel"
               - "ssmmessages:OpenDataChannel"
+              - "ssm:GetParameters"
+              - "secretsmanager:GetSecretValue"
+              - "kms:Decrypt"
             Resource: "*"
       Roles:
         - Ref: ECSTaskExecutionRole
