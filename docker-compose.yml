@@ -14,6 +14,8 @@ services:
       - ./project/frontend/:/app/
     ports:
       - 80:3000
+    environment:
+      - DEPLOYMENT_STAGE = "deployment"
     # command: /bin/sh -c "while :; do sleep 10; done"
 
   backend:
@@ -29,7 +31,6 @@ services:
     ports:
       - 8000:80
     # command: /bin/sh -c "while :; do sleep 10; done"
-    # command: uvicorn app.main:app --host 0.0.0.0 --port 80 --reload
 
 networks:
   odekakekun-net:
