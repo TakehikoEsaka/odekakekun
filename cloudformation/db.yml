@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create ECS BackEnd Task & Service
+Parameters:
+  DBUsername:
+    Type: String
+    Default: "xxxxxx"
+
+  DBPassword:
+    Type: String
+    Default: "xxxxxx"
+
+  # SSMから取得
+  PrivateSubnetAId:
+    # SSMで受け取る側はAWSのデータ型に合わせる
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PrivateSubnetAId
+
+  PrivateSubnetCId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
+    Default: /odekakekun-values/PrivateSubnetCId
+
+  VpcId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
+
+Resources:
+  ########################################################
+  ###  Postgres Database
+  ########################################################
+  PostgresSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS Security Group
+      VpcId: !Ref VpcId
+      GroupName: rds-security-group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.1.200.0/24
+
+  # DBのSubnetGroupはAZが違う所を入れておくことで冗長性を担保
+  PostgresSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Sub "Database subnet group"
+      SubnetIds:
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
+
+  PostgresDB:
+    Type: AWS::RDS::DBInstance
+    DependsOn:
+      - PostgresSG
+      - PostgresSubnetGroup
+    Properties:
+      DBName: "odekakekundb"
+      VPCSecurityGroups:
+        - !Ref PostgresSG
+      AllocatedStorage: "20"
+      DBInstanceClass: db.t4g.micro
+      Engine: postgres
+      EngineVersion: "13.3"
+      MasterUsername: !Ref DBUsername
+      # ここをtrueにすると自動でSSMにPASSがが生成されて登録される
+      ManageMasterUserPassword: true
+
+      # MasterUserPassword: !Ref DBPassword
+      DBSubnetGroupName: !Ref PostgresSubnetGroup
+      MultiAZ: false
+
+      # 自動でSSMで登録されるようにしたので以下は記述不要
+      # DBUsernameParameter:
+      #   Type: "AWS::SSM::Parameter"
+      #   Properties:
+      #     Name: /odekakekun-values/db/username
+      #     Type: String
+      #     Value: !Ref DBUsername
+
+      # DBPasswordParameter:
+      #   Type: "AWS::SSM::Parameter"
+      #   Properties:
+      #     Name: /odekakekun-values/db/password
+      #     Type: String
+      #     Value: !Ref DBPassword
