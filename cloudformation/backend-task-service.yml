@@ -22,6 +22,10 @@ Parameters:
     Type: String
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
+  SsmDBInfo:
+    Type: String
+    Default: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:rds!db-600426c5-cd5a-40fa-bb88-1cde28e0532c-cpoPPc"
+
   # SSMから取得
   PrivateSubnetAId:
     # SSMで受け取る側はAWSのデータ型に合わせる
@@ -100,10 +104,8 @@ Resources:
           # TODO SSMからDBのユーザー名とパスワードを取得する
           # 参考：https://dev.classmethod.jp/articles/cfn-ecs-secrets/
           Secrets:
-            - Name: DB_USER
-              ValueFrom: ssm-db-user
-            - Name: DB_PASSWORD
-              ValueFrom: ssm-db-password
+            - Name: DBINFO
+              ValueFrom: !Ref SsmDBInfo
             # DBのENDPOINTも指定する
             # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
           LogConfiguration:
@@ -125,14 +127,14 @@ Resources:
   ECSBackendService:
     Type: AWS::ECS::Service
     Properties:
+      #BKはサービスディスカバリを通じてFRONTとやりとりする
+      ServiceRegistries:
+        - RegistryArn: !GetAtt ServiceDiscovery.Arn
       Cluster: !Ref ECSCluster
       EnableExecuteCommand: true # ECS-EXEC用
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
-      #BKはサービスディスカバリを通じてFRONTとやりとりする
-      ServiceRegistries:
-        - RegistryArn: !GetAtt ServiceDiscovery.Arn
       # BKはALBとは直接通信しない
       # LoadBalancers:
       #   - TargetGroupArn: !Ref TargetGroup
@@ -148,50 +150,3 @@ Resources:
             - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition
-
-  ########################################################
-  ###  Postgres Database
-  # TODO TRY ERRORするならここだけ切り出してもいいかも
-  ########################################################
-  PostgresSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: RDS Security Group
-      VpcId: !Ref VpcId
-      GroupName: rds-security-group
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          CidrIp: 10.1.100.0/24
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          CidrIp: 10.1.200.0/24
-
-  # DBのSubnetGroupはAZが違う所を入れておくことで冗長性を担保
-  PostgresSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: !Sub "Database subnet group"
-      SubnetIds:
-        - !Ref PrivateSubnetAId
-        - !Ref PrivateSubnetCId
-
-  PostgresDB:
-    Type: AWS::RDS::DBInstance
-    DependsOn:
-      - PostgresSG
-      - PostgresSubnetGroup
-    Properties:
-      VPCSecurityGroups:
-        - !Ref PostgresSG
-      AllocatedStorage: "20"
-      DBInstanceClass: db.t4g.micro
-      Engine: postgres
-      EngineVersion: "13.3"
-      MasterUsername: postgres
-      # ここをtrueにすると自動でSSMにPASSがが生成されて登録される
-      ManageMasterUserPassword: true
-      DBSubnetGroupName: !Ref PostgresSubnetGroup
-      MultiAZ: false
