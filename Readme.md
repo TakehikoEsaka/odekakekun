@@ -1,54 +1,51 @@
-# Odekakekun とは
+<p align="center">
+  こんな感じで画像をいれたい
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://huggingface.co/datasets/huggingface/documentation-images/raw/main/transformers-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://huggingface.co/datasets/huggingface/documentation-images/raw/main/transformers-logo-light.svg">
+    <img alt="Hugging Face Transformers Library" src="https://huggingface.co/datasets/huggingface/documentation-images/raw/main/transformers-logo-light.svg" width="352" height="59" style="max-width: 100%;">
+  </picture>
+  <br/>
+  <br/>
+</p>
 
-Odekakekun とは今いる場所から、指定した交通機関・時間以内でいけるお勧めの場所を Chat-GPT に教えてもらえるサービス
+# Odekakekunとは
+🚶‍♂️Odekakekun はChat-GPT におでかけの最適な場所を教えてもらえるサービス <br />
+🚶‍♂️今いる場所・指定した交通機関・指定した時間以内に行けるおすすめの場所をChatGPTに質問可能<br />
+🚶‍♂️ユーザー作成・ログイン機能有り。ログインすれば過去に提案を受けた履歴を保存する事が可能<br />
 
-# 基本機能
-
-## ユーザー作成・ログイン機能
-
-- ユーザー作成は誰でも可能
-- ユーザー作成は後述するように過去 ChatGPT から提案を受けた場所を取得できるというメリットがある
-
-## ChatGPT を使った予測
-
-- ユーザーが指定した場所・時間・交通手段から ChatGPT におすすめの場所を聞く事が可能
-
-## 過去に提案を受けた場所を取得
-
-- ログインしている場合は過去に提案を受けた場所を取得する事が出来る
+# Demo
+- TODO ここにでも動画を載せる
+- TODO ここにアクセス用のURL・ユーザー名・パスワードを記載しておく
 
 # 使用技術
+## ① Infra
 
-使用技術を Infra/BackEnd/FrontEnd に分けて以下記載
+ベース技術 ：**Github-Action・AWS・Docker**
 
-## Infra
+TODO ：ここにネットワーク構成図
 
-ベース技術 ：Github-Action・AWS・Docker
+[補足]</br>
+🚶‍♂️GitHub-Action：ビルド/テスト/ECR への ImagePUSH を実施 </br>
+🚶‍♂️Cloudformation : ECR/VPC/ECS/RDS などアプリ立ち上げに全て必要なものは IaaS 化して管理 </br>
+🚶‍♂️ECS：Frontend と BackEnd で別タスク・別サービスに分けてPrivateSubnet内で起動 </br>
+🚶‍♂️RDS：ユーザー情報と過去ChatGPTの提案内容を記録する為にPostgresエンジンを使用 </br>
 
-- GitHub-Action：ビルド/テスト/ECR への ImagePUSH を実施
-- Cloudformation : ECR/VPC/ECS/RDS などアプリ立ち上げに全て必要なものは IaaS 化して管理
-- ECS：Frontend と BackEnd で別タスク・別サービスに分けて起動
+## ② FrontEnd
+ベース技術：**React・Typescript**
 
-（参考）ネットワーク構成図は以下の通り
+[補足]</br>
+🚶‍♂️React-Router：ページ遷移の為に導入</br>
+🚶‍♂️React-Testing-Library：テスト実施の為に導入</br>
+🚶‍♂️Recoil：Global な State 管理のために導入</br>
+🚶‍♂️Chakura-UI：UI コンポーネント利用の為に導入</br>
 
-- ALB は PublicSubnet・ECS の各サービスは PrivateSubnet に配置
-- FrontEnd-BackEnd コンテナ間通信は ECS の ServiceDiscovery の機能を使って実現
+## ③ BackEnd
 
-## FrontEnd
+ベース技術：**FastAPI・SQLAlchemy**
 
-ベース技術：React/Typescript
-
-- React-Router：ページ遷移の為に導入
-- React-Testing-Library：テスト実施の為に導入
-- Recoil：Global な State 管理のために導入
-- Chakura-UI：UI コンポーネント利用の為に導入
-
-## BackEnd
-
-ベース技術：FastAPI
-
-- SQLAlchemy：local では SQLite・AWS 上では Postgres として接続して利用
-- Pytest：テスト実施のために導入
+[補足]</br>
+🚶‍♂️Pytest：テスト実施の為に導入</br>
 
 # TODO
 
