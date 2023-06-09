@@ -1,20 +1,29 @@
-FROM node:14-alpine
+# Fetching the latest node image on apline linux
+FROM node:alpine AS builder
 
+# Setting up the work directory
 WORKDIR /app
 
-# ローカルに定義しているパスをコンテナ内のPATHとして追加する
-ENV PATH /app/node_modules/.bin:$PATH
-
+# Installing dependencies
 COPY package.json ./
 COPY yarn.lock ./
 
 RUN yarn install --frozen-lockfile
 
+# Copying all the files in our project
 COPY . .
 
-# set yarn log level to verbose
-ENV YARN_LOG_LEVEL=verbose
+# Building our application
+RUN yarn build
 
-ENV PORT 3000
+# Fetching the latest nginx image
+FROM nginx:alpine
 
-CMD ["yarn", "start"]
+# Copying built assets from builder
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Install necessary packages
+RUN apk add --no-cache curl busybox-extras bind-tools
+
+# Copying our nginx.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf

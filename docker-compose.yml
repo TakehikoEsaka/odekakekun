@@ -13,9 +13,9 @@ services:
     volumes:
       - ./project/frontend/:/app/
     ports:
-      - 80:3000
-    environment:
-      - DEPLOYMENT_STAGE = "deployment"
+      - 3000:80
+    env_file:
+      - ./project/frontend/frontend.env
     # command: /bin/sh -c "while :; do sleep 10; done"
 
   backend:
@@ -29,7 +29,9 @@ services:
     volumes:
       - ./project/backend:/usr/src/
     ports:
-      - 8000:80
+      - 8080:80
+    env_file:
+      - ./project/backend/backend.env
     # command: /bin/sh -c "while :; do sleep 10; done"
 
 networks:
