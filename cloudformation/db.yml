@@ -64,12 +64,10 @@ Resources:
       AllocatedStorage: "20"
       DBInstanceClass: db.t4g.micro
       Engine: postgres
+      DBInstanceIdentifier: "odekakekun-db"
       EngineVersion: "13.3"
       MasterUsername: !Ref DBUsername
-      # ここをtrueにすると自動でSSMにPASSがが生成されて登録される
-      ManageMasterUserPassword: true
-
-      # MasterUserPassword: !Ref DBPassword
+      MasterUserPassword: !Ref DBPassword
       DBSubnetGroupName: !Ref PostgresSubnetGroup
       MultiAZ: false
 
