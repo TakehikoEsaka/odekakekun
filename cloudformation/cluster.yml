@@ -51,6 +51,23 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 10.1.20.0/24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.1.200.0/24
+        # pribateサブネット間はpingで通信確認できるようにしておく
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.1.200.0/24
 
   ########################################################
   ###  ECS Task Execution Role
