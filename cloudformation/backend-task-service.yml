@@ -24,7 +24,7 @@ Parameters:
 
   SsmDBInfo:
     Type: String
-    Default: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:rds!db-600426c5-cd5a-40fa-bb88-1cde28e0532c-cpoPPc"
+    Default: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:rds!db-40aa2f4a-a8ea-43da-b5b2-1ccad8b328df-wnfwqo"
 
   # SSMから取得
   PrivateSubnetAId:
@@ -97,17 +97,14 @@ Resources:
       ContainerDefinitions:
         - Name: !Ref ECSBackEndContainerName
           Image: !Ref ECSBackEndImageName
-          # TODO PRODUCTION STAGEを指定する
           Environment:
             - Name: DEPLOYMENT_STAGE
-              Value: deployment
-          # TODO SSMからDBのユーザー名とパスワードを取得する
-          # 参考：https://dev.classmethod.jp/articles/cfn-ecs-secrets/
+              Value: production
+          # DBのENDPOINTも指定する
+          # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
           Secrets:
             - Name: DBINFO
               ValueFrom: !Ref SsmDBInfo
-            # DBのENDPOINTも指定する
-            # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -142,6 +139,9 @@ Resources:
       #     ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
+          # vpc_cheap_versionの時はPublicSubnetに置くことになるのでENABLEにしておく
+          # AssignPublicIp: ENABLED
+          # もしIG/NAtがないsubnetでここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
           AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId

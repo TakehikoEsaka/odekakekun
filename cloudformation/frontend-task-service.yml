@@ -69,6 +69,9 @@ Resources:
       ContainerDefinitions:
         - Name: !Ref ECSFrontEndContainerName
           Image: !Ref ECSFrontEndImageName
+          Environment:
+            - Name: REACT_APP_DEPLOYMENT_STAGE
+              Value: production
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -101,6 +104,8 @@ Resources:
         AwsvpcConfiguration:
           # もしIG/NAtがないsubnetでここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
           AssignPublicIp: DISABLED
+          # vpc_cheap_versionの時はPublicSubnetに置くことになるのでENABLEにしておく
+          # AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
