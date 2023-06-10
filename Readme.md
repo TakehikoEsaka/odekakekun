@@ -6,16 +6,19 @@
   <br/>
 </p>
 
-# Odekakekunとは
-🚶‍♂️Odekakekun はChat-GPT におでかけの最適な場所を教えてもらえるサービス <br />
-🚶‍♂️今いる場所・指定した交通機関・指定した時間以内に行けるおすすめの場所をChatGPTに質問可能<br />
-🚶‍♂️ユーザー作成・ログイン機能有り。ログインすれば過去に提案を受けた履歴を保存する事が可能<br />
+# Odekakekun とは
+
+🚶‍♂️Odekakekun は Chat-GPT におでかけの最適な場所を教えてもらえるサービス <br />
+🚶‍♂️ 今いる場所・指定した交通機関・指定した時間以内に行けるおすすめの場所を ChatGPT に質問可能<br />
+🚶‍♂️ ユーザー作成・ログイン機能有り。ログインすれば過去に提案を受けた履歴を保存する事が可能<br />
 
 # Demo
+
 - TODO ここにでも動画を載せる
-- TODO ここにアクセス用のURL・ユーザー名・パスワードを記載しておく
+- TODO ここにアクセス用の URL・ユーザー名・パスワードを記載しておく
 
 # 使用技術
+
 ## ① Infra
 
 ベース技術 ：**Github-Action・AWS・Docker**
@@ -25,10 +28,11 @@ TODO ：ここにネットワーク構成図
 [補足]</br>
 🚶‍♂️GitHub-Action：ビルド/テスト/ECR への ImagePUSH を実施 </br>
 🚶‍♂️Cloudformation : ECR/VPC/ECS/RDS などアプリ立ち上げに全て必要なものは IaaS 化して管理 </br>
-🚶‍♂️ECS：Frontend と BackEnd で別タスク・別サービスに分けてPrivateSubnet内で起動 </br>
-🚶‍♂️RDS：ユーザー情報と過去ChatGPTの提案内容を記録する為にPostgresエンジンを使用 </br>
+🚶‍♂️ECS：Frontend と BackEnd で別タスク・別サービスに分けて PrivateSubnet 内で起動 </br>
+🚶‍♂️RDS：ユーザー情報と過去 ChatGPT の提案内容を記録する為に Postgres エンジンを使用 </br>
 
 ## ② FrontEnd
+
 ベース技術：**React・Typescript**
 
 [補足]</br>
@@ -53,11 +57,6 @@ TODO ：ここにネットワーク構成図
 
 - Python の DRY 原則への対応
 - テストデータとしてメールと pass を記載して出しておく
-- Readme への技術まとめ
-  - アプリケーションの概要
-    - vpc 構成の記述
-    - 料金がかかるので endpoint を使わないプランの構成を用意している事を記述
-  - アプリケーションの機能一覧
-  - アプリケーションないで使用している技術一覧
 - TOPVIEW のリクエストを正しいものにする（ボタンを既存の文言にするとかもあり）
 - CD：CodePipeline をできたら入れる（https://qiita.com/YutaSaito1991/items/1a001f0e19e9de033612）
+- TS 系を整える

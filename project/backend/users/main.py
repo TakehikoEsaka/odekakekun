@@ -24,6 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 app = FastAPI()
 
 # フロントエンドからのリクエストを受け入れるために、CORSを設定する
+# TODO originはこんな感じで指定するでもいいかも（https://stackoverflow.com/questions/71802652/react-not-showing-post-response-from-fastapi-backend-application/71805329#71805329）
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
