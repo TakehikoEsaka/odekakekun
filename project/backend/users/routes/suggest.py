@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 import pandas as pd
 from pathlib import Path
 from users import models
-from database import get_db
-import oauth2
+from users.database import get_db
+from users import oauth2
 import os
 from dotenv import load_dotenv
 import openai
