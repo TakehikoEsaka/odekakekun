@@ -14,6 +14,12 @@ if (
   targetURL = "http://odekakekun-backend-container";
 }
 
+// もしこの記述がないと環境変数がない時にtargetURL作れなくてアクセスができなくなってしまう
+// TODO この辺りの話まとめたい
+if (!process.env.REACT_APP_DEPLOYMENT_STAGE) {
+  targetURL = "localhost:8080";
+}
+
 module.exports = function (app) {
   app.use(
     "/api",
@@ -25,4 +31,8 @@ module.exports = function (app) {
       changeOrigin: true,
     })
   );
+
+  app.use((req, res, next) => {
+    next();
+  });
 };
