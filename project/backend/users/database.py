@@ -11,30 +11,29 @@ import os
 
 DEPLOYMENT_STAGE = os.getenv("DEPLOYMENT_STAGE")
 
-if DEPLOYMENT_STAGE == "development" or "test" :
-    engine = create_engine("sqlite:///./db/user.db", connect_args={"check_same_thread" : False})
+if DEPLOYMENT_STAGE == "development" or "test":
+    engine = create_engine("sqlite:///./db/user.db",
+                           connect_args={"check_same_thread": False})
 
 elif DEPLOYMENT_STAGE == "production":
     # TODO backendからdatabaseにテストデータを入れるスクリプトを作成して実行する
     DB_USER = os.getenv("DBINFO").username
     DB_PASSWORD = os.getenv("DBINFO").password
-    conf ={
+    conf = {
         # RDSのホスト名は固定化可能
-        'host':"odekakekun-db.ciqtwkmmeeo9.ap-northeast-1.rds.amazonaws.com",
-        'port':'5432',
-        'database':"odekakekundb",
-        'user':DB_USER,
-        'password':DB_PASSWORD
+        'host': "odekakekun-db.ciqtwkmmeeo9.ap-northeast-1.rds.amazonaws.com",
+        'port': '5432',
+        'database': "odekakekundb",
+        'user': DB_USER,
+        'password': DB_PASSWORD
     }
 
-    engine = create_engine("postgresql://{user}:{password}@{host}:{port}/{database}".format(**conf), connect_args={"check_same_thread" : False})
+    db_url = "postgresql://{user}:{password}@{host}:{port}/{database}".format(**conf)
+    engine = create_engine(db_url, connect_args={"check_same_thread": False})
 
-
-
-
-sessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit = False)
-
+sessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
+
 
 def get_db():
     """endpointからアクセス時に、Dependで呼び出しdbセッションを生成する

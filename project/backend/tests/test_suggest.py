@@ -5,6 +5,7 @@ PLACE = "出町柳"
 TIME = "30分"
 WAY = "自転車"
 
+
 # TODO ここにpytestの時間待機の文を入れる
 def test_suggest(test_client):
 
@@ -20,16 +21,16 @@ def test_suggest(test_client):
         data={"username": EMAIL, "password": PASSWORD},
     )
     assert response.status_code == 200, response.text
-    token = response.json()["access_token"]  
+    token = response.json()["access_token"]
 
     response = test_client.post(
         "/suggest/",
-        headers = {
+        headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
             "accept": "application/json"
         },
-        params = {
+        params={
             "place": PLACE,
             "time": TIME,
             "way": WAY
@@ -37,17 +38,18 @@ def test_suggest(test_client):
     )
     assert response.status_code == 200, response.text
 
+
 def test_get_all_suggest(test_client):
     response = test_client.post(
         "/token/",
         data={"username": EMAIL, "password": PASSWORD},
     )
     assert response.status_code == 200, response.text
-    token = response.json()["access_token"]  
+    token = response.json()["access_token"]
 
     response = test_client.get(
         "/get_all_suggest/",
-        headers = {
+        headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
             "accept": "application/json"

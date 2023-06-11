@@ -2,17 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-
 from users.hashing import Hash
 from users import schemas
-# ASK Importの仕方によってエラーが起こる理由を調べる
 from users import models
-# from users import models
-from users.oauth2 import create_access_token
-from users.hashing import Hash
 from users.database import get_db
 from users import oauth2
 import logging
+# ASK Importの仕方によってエラーが起こる理由を調べる
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -23,15 +19,16 @@ logger.addHandler(handler)
 
 router = APIRouter()
 
-@router.post("/create_user", tags = ["login"])  
+
+@router.post("/create_user", tags=["login"])
 def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     try:
         hashed_password = Hash.bycrypt(request.password)
-        new_user = models.UserInfo(username = request.username, password = hashed_password)
+        new_user = models.UserInfo(username=request.username, password=hashed_password)
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-    except IntegrityError as e:
+    except IntegrityError:
         db.rollback()
         # このHTTP Exceptionを使うとDB周りの例外処理が扱いやすくなる
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already registered")
@@ -39,8 +36,9 @@ def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
     print("new user is ", new_user.username)
     return new_user
 
+
 # tokenという名前以外はつけれないので注意
-@router.post('/token', response_model=schemas.Token, tags = ["login"])
+@router.post('/token', response_model=schemas.Token, tags=["login"])
 def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     userinfo = db.query(models.UserInfo).filter(models.UserInfo.username == request.username).first()
 
@@ -55,7 +53,7 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Incorrect password'
         )
-    
+
     access_token = oauth2.create_access_token(data={'sub': userinfo.username})
 
     return {
@@ -63,8 +61,9 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
         'token_type': 'bearer'
     }
 
+
 # session check
-@router.get('/login/session-check', tags = ["login"])
+@router.get('/login/session-check', tags=["login"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
     # TODO ここをユーザー情報をつけて認証するフローを入れる。今は
     # print("request.username is : ", request.username)

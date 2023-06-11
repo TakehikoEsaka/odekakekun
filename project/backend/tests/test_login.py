@@ -1,6 +1,7 @@
 EMAIL = "example6@example.com"
 PASSWORD = "chimichangas4life"
 
+
 # fixtureで定義したtest_client関数を引数に指定することで紐付けが可能
 def test_create_user(test_client):
 
@@ -12,6 +13,7 @@ def test_create_user(test_client):
     data = response.json()
     assert data["username"] == EMAIL
 
+
 def test_get_token(test_client):
 
     response = test_client.post(
@@ -20,7 +22,6 @@ def test_get_token(test_client):
     )
     assert response.status_code == 200, response.text
 
-    TOKEN = response.json()["access_token"]
 
 def test_session_check(test_client):
 
@@ -32,7 +33,7 @@ def test_session_check(test_client):
 
     response = test_client.get(
         "/login/session-check/",
-        headers = {
+        headers={
             "Authorization": f"Bearer {token}"
         }
     )

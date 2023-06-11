@@ -1,6 +1,7 @@
 from users.database import Base
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+
 
 class UserInfo(Base):
     __tablename__ = "userinfo"
@@ -9,6 +10,7 @@ class UserInfo(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True)
     password = Column(String)
+
 
 class Suggest(Base):
     __tablename__ = "suggestion"

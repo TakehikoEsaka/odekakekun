@@ -1,14 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 import pandas as pd
 from pathlib import Path
-import time
-
 from users import models
 from database import get_db
 import oauth2
-
 import os
 from dotenv import load_dotenv
 import openai
@@ -20,26 +16,26 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 router = APIRouter()
 
-def get_suggest(db: Session, email : str):
-    suggests = db.query(models.Suggest).filter(models.Suggest.email == email).first()
-    if not suggests:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'Suggests with {email} not found')
-    return suggests
+# def get_suggest(db: Session, email: str):
+#     suggests = db.query(models.Suggest).filter(models.Suggest.email == email).first()
+#     if not suggests:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Suggests with {email} not found')
+#     return suggests
+
 
 def ask_chatgpt(question):
-    start_time = time.time()
-    timeout_seconds = 5
     try:
         response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
-                                                messages=[{"role": "user", "content": question},],timeout=1).choices[0]["message"]["content"].strip()
-        df = pd.read_csv(StringIO(response), sep='|', header = 0, skiprows=[1], skipinitialspace=True)
+                                                messages=[{"role": "user", "content": question}],
+                                                timeout=1).choices[0]["message"]["content"].strip()
+
+        df = pd.read_csv(StringIO(response), sep='|', header=0, skiprows=[1], skipinitialspace=True)
 
         # 列目に空白が入る時があるので除外
         df.columns = df.columns.str.strip()
 
         # 余分なカラムが生成される場合があるので除外・英語名に変換
-        df = df[["場所名", "説明", "距離"]].rename(columns={"場所名" : "suggest_place", "説明" : "suggest_description", "距離" : "suggest_distance"})
+        df = df[["場所名", "説明", "距離"]].rename(columns={"場所名": "suggest_place", "説明": "suggest_description", "距離": "suggest_distance"})
 
         # 値に空白が入る時があるので除外
         for col in df.columns:
@@ -51,9 +47,10 @@ def ask_chatgpt(question):
         print(e)
         return None
 
-@router.post("/suggest", tags = ["suggest"])
-def suggest(place : str, time : str, way : str, current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
-    
+
+@router.post("/suggest", tags=["suggest"])
+def suggest(place: str, time: str, way: str, current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
+
     question = "{}から{}以内で{}を使っていけるおすすめの場所を3つ表形式で教えて下さい。場所名・距離・説明を列にして下さい".format(place, time, way)
 
     # ここでanswerをchat-gptからget
@@ -62,14 +59,11 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
     print("guess end")
     print("answer is ", answer)
 
-    if answer == None:
+    if answer is None:
         print("answer is None")
         return None
 
-    
     # TODO モデルにGoogleMapのリンクを入れるようにする
-
-
     # ログインしている時はDBに追加・そうでない時は追加しない
     if current_user:
         question_uuid = str(uuid.uuid4())
@@ -79,15 +73,15 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
             suggest_description = answer["suggest_description"][i]
             suggest_distance = answer["suggest_distance"][i]
             new_suggests.append({
-                "user_id" : current_user.user_id,
-                "question_uuid" : question_uuid,
-                "place" : place, 
-                "time" : time,
-                "way" : way,
-                "suggest_place" : suggest_place,
-                "suggest_description" : suggest_description, 
-                "suggest_distance" : suggest_distance })
-            
+                "user_id": current_user.user_id,
+                "question_uuid": question_uuid,
+                "place": place,
+                "time": time,
+                "way": way,
+                "suggest_place": suggest_place,
+                "suggest_description": suggest_description,
+                "suggest_distance": suggest_distance})
+
         db.bulk_insert_mappings(models.Suggest, new_suggests)
         # db.bulk_update_mappings(models.Suggest, new_suggests)
         db.commit()
@@ -96,7 +90,8 @@ def suggest(place : str, time : str, way : str, current_user: models.UserInfo = 
 
     return answer
 
-@router.get("/get_all_suggest", tags = ["suggest"])
+
+@router.get("/get_all_suggest", tags=["suggest"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
 
     if current_user:
@@ -105,13 +100,12 @@ def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_activ
         df = pd.DataFrame(columns=["question_uuid", "place", "time", "way", "suggest_place"])
 
         for s in user.suggestions[-1:-16:-1]:
-            df = pd.concat([df, pd.DataFrame([{"question_uuid" : s.question_uuid,
-                                            "place": s.place,
-                                            "time": s.time, 
-                                            "way": s.way,
-                                            "suggest_place": s.suggest_place}])], ignore_index=True)
+            df = pd.concat([df, pd.DataFrame([{"question_uuid": s.question_uuid,
+                                               "place": s.place,
+                                               "time": s.time,
+                                               "way": s.way,
+                                               "suggest_place": s.suggest_place}])], ignore_index=True)
         # print("last 9 histories is following" , df)
         return df.to_dict(orient="records")
     else:
         None
-

@@ -1,15 +1,17 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, drop_database
+from sqlalchemy_utils import drop_database
 from users.database import get_db, Base
 from users.main import app
 from fastapi.testclient import TestClient
 import os
 
+
 @pytest.fixture(autouse=True)
 def set_environment_variables():
     os.environ["DEPLOYMENT_STAGE"] = "test"
+
 
 @pytest.fixture(scope="module")
 def SessionLocal():
@@ -29,7 +31,8 @@ def SessionLocal():
     # Drop the test database
     drop_database(TEST_SQLALCHEMY_DATABASE_URL)
 
-@pytest.fixture(scope = "module")
+
+@pytest.fixture(scope="module")
 def test_client(SessionLocal, *args, **kwargs):
     # テスト用のDBに接続するためのsessionmaker instanse
     #  (SessionLocal) をfixtureから受け取る
@@ -39,10 +42,9 @@ def test_client(SessionLocal, *args, **kwargs):
             db = SessionLocal()
             yield db
         finally:
-            # TODO ここの役割調べる
             # db.rollback()
 
-            # ASK clientから実行するごとに実行されてる。これがないと次のDBとの接続で同時に接続しようとしてエラーが出る。その理解で間違いないか？
+            # ASK clientから実行するごとに実行されてるか見ておく
             db.close()
             pass
 
