@@ -13,3 +13,4 @@ build/
 *.DS_STORE
 *.log
 *.env
+*.lock

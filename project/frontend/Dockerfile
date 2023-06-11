@@ -1,5 +1,5 @@
 # Fetching the latest node image on apline linux
-FROM node:alpine AS builder
+FROM node:16.15-alpine AS builder
 
 # Setting up the work directory
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --production
 
 # Copying all the files in our project
 COPY . .
