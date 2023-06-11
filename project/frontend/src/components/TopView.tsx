@@ -10,7 +10,7 @@ import { useRecoilValue } from "recoil";
 import { chatGPTLoadingState } from "../store/chatGPTLoadingState";
 
 type PropType = {
-  getSuggest: (wishVariables: string) => void;
+  getSuggest: (place: string, hour: string, way: string) => void;
   getHistories: () => void;
 };
 
@@ -19,7 +19,7 @@ export const TopView = (props: PropType) => {
 
   const trySuggest = () => {
     // ASK フォームの値をどうやってとってくるか
-    props.getSuggest("test");
+    props.getSuggest("高円寺", "1時間", "自転車");
     props.getHistories();
   };
 
