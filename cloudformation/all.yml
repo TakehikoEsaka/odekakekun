@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Manage myself verification environment
+
+Parameters:
+  TemplateVPC:
+    Description: VPC template Object URL
+    Type: String
+    Default: VPCtemplateのURLを記述
+
+  TemplateSG:
+    Description: SG template Object URL
+    Type: String
+    Default: SGtemplateのURLを記述
+
+Resources:
+  # VPCの作成
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref TemplateVPC
+      Parameters:
+        AZ1: !Select [0, !GetAZs ""]
+        CIDRBlock: "10.0.0.0/16"
+        PublicSubnet1CIDR: "10.0.10.0/24"
+
+  # SGの作成
+  SG:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref TemplateSG
+      Parameters:
+        VPCId: !GetAtt VPC.Outputs.VPCId
+    DependsOn: VPC
+
+Outputs:
+  VPCId:
+    Value: !GetAtt VPC.Outputs.VPCId
+    Description: VPC CIDR Block
+
+  PublicSubnet1Id:
+    Value: !GetAtt VPC.Outputs.PublicSubnet1Id
+    Description: PublicSubnet1 CIDR Block
+
+  SSHHTTPSG:
+    Value: !GetAtt SG.Outputs.SGSshHttp
+    Description: SG for ssh and http

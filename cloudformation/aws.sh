@@ -17,3 +17,6 @@ aws ecs execute-command --cluster odekakekun-cluster --task 2cfc469f241842539cf7
 # サービス検出できているか確認
 dig +short service-discovery.odekakekun-network
 
+# S3にファイルをアップロード
+aws s3 cp ./alb.yml s3://odekakekun-cfn/ --recursive     
+
