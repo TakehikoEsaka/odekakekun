@@ -17,8 +17,8 @@ import { useRecoilState } from "recoil";
 import axiosInstance from "../axios";
 
 export const Login = () => {
-  const [email, setEmail] = useState("string@gmail.com");
-  const [password, setPassword] = useState("string");
+  const [email, setEmail] = useState("testuser@gmail.com");
+  const [password, setPassword] = useState("testpass");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectTo, setRedirectTo] = useState(null);
@@ -95,6 +95,14 @@ export const Login = () => {
           </Stack>
         </form>
       </Box>
+
+      <Alert status="success">
+        <AlertIcon />
+        テストユーザーの情報は以下の通り <br />
+        Email：testuser@gmail.com <br />
+        パスワード：testpass <br />
+      </Alert>
+
       {error && (
         <Alert status="error" marginTop={3} size="xs">
           <AlertIcon />

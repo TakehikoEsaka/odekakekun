@@ -15,7 +15,11 @@
 # Demo
 
 - TODO ここにでも動画を載せる
-- TODO ここにアクセス用の URL・ユーザー名・パスワードを記載しておく
+
+テストユーザーを作成しています
+
+- Email：testuser@gmail.com
+- パスワード：testpass
 
 # 使用技術
 
@@ -50,13 +54,15 @@ TODO ：ここにネットワーク構成図
 
 # TODO
 
-- OpenAPI の key を SSM に登録してもってくるようにする
-- CI：Github Actions から ECR への Image PUSH まわり
-- PostgresDB とのデータやりとり確認
-- サービスディスカバリを使ったコンテナ間通信
-
-- Python の DRY 原則への対応
 - テストデータとしてメールと pass を記載して出しておく
 - TOPVIEW のリクエストを正しいものにする（ボタンを既存の文言にするとかもあり）
+- OpenAPI の key を SSM に登録してもってくるようにする
+- PostgresDB とのデータやりとり確認
+- サービスディスカバリを使ったコンテナ間通信
+- Pytest が通るようにする
+- SSL 対応
+- CI：Github Actions から ECR への Image PUSH まわり
+
+- Python の DRY 原則への対応
 - CD：CodePipeline をできたら入れる（https://qiita.com/YutaSaito1991/items/1a001f0e19e9de033612）
 - TS 系を整える

@@ -17,8 +17,8 @@ import { useRecoilState } from "recoil";
 import axiosInstance from "../axios";
 
 export const CreateUser = () => {
-  const [email, setEmail] = useState("string@gmail.com");
-  const [password, setPassword] = useState("string");
+  const [email, setEmail] = useState("testuser@gmail.com");
+  const [password, setPassword] = useState("testpass");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
