@@ -1,5 +1,6 @@
 #official base-image python
-FROM python:3.9.6-slim-buster
+# FROM python:3.9.6-slim-buster
+FROM python:3.9.6-alpine
 
 #working directroy
 WORKDIR /usr/src/
@@ -8,15 +9,19 @@ WORKDIR /usr/src/
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# install system dependencies
+RUN apk update \
+  && apk add --no-cache netcat-openbsd gcc musl-dev postgresql-dev
+
 #install system depedencies
-RUN apt-get update \
-  && apt-get -y install netcat gcc postgresql \
-  && apt-get clean
+# RUN apt-get update \
+#   && apt-get -y install netcat gcc postgresql \
+#   && apt-get clean
 
 #install python depedencies
 RUN pip install --upgrade pip
-COPY ./requirements-prod.txt .
-RUN pip install -r requirements-prod.txt --no-cache-dir
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
 
 #add app
 COPY . .
