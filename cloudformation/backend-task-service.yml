@@ -105,6 +105,9 @@ Resources:
           Secrets:
             - Name: DBINFO
               ValueFrom: !Ref SsmDBInfo
+            # OPEN APIのキーは固定化しておく
+            - Name: odekakekun/openai-key
+              ValueFrom: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:odekakekun/openai-key-ZPZ7eT"
           LogConfiguration:
             LogDriver: awslogs
             Options:
