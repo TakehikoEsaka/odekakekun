@@ -1,5 +1,6 @@
-# TODO サービスディスカばりをつけた状態で立ち上げできるようにする
-# TODO BKのコンテナをprivateにおいてNATをつけてfrontと通信できるようにする
+# TODO AutoScaleを入れれたら入れておく
+# TODO RDBのセットアップ
+# TODO テンプレートをまとめる（参考：https://github.com/aws-samples/startup-kit-templates/blob/master/vpc-bastion-fargate.cfn.yml
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS BackEnd Task & Service
@@ -21,20 +22,24 @@ Parameters:
     Type: String
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
-  # SSMから取得
-  # Service Discovery用に用意
-  VpcId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
-    Default: /odekakekun-values/VPCId
+  SsmDBInfo:
+    Type: String
+    Default: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:rds!db-40aa2f4a-a8ea-43da-b5b2-1ccad8b328df-wnfwqo"
 
-  PublicSubnetAId:
+  # SSMから取得
+  PrivateSubnetAId:
     # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
+    Default: /odekakekun-values/PrivateSubnetAId
 
-  PublicSubnetCId:
+  PrivateSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
+    Default: /odekakekun-values/PrivateSubnetCId
+
+  ## Service Discovery用に用意
+  VpcId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /odekakekun-values/VPCId
 
   ECSCluster:
     Type: AWS::SSM::Parameter::Value<String>
@@ -43,10 +48,6 @@ Parameters:
   ECSLogGroup:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/ECSLogGroup
-
-  TargetGroup:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /odekakekun-values/TargetGroup
 
   ECSTaskExecutionRole:
     Type: AWS::SSM::Parameter::Value<String>
@@ -65,7 +66,7 @@ Resources:
     Type: AWS::ServiceDiscovery::PrivateDnsNamespace
     Properties:
       Vpc: !Ref VpcId
-      Name: "odekakekun-local"
+      Name: "odekakekun-network"
 
   ServiceDiscovery:
     Type: AWS::ServiceDiscovery::Service
@@ -77,7 +78,7 @@ Resources:
           - Type: A
             TTL: 60
         NamespaceId: !GetAtt PrivateDnsNamespace.Id
-      Name: "odekakekun-service-discovery"
+      Name: "service-discovery"
 
   ########################################################
   ###  ECS BackEnd TaskDefinition
@@ -86,17 +87,24 @@ Resources:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
       Cpu: 512
+      TaskRoleArn: !Ref ECSTaskExecutionRole
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       Family: !Ref ECSBackEndTaskName
       Memory: 1024
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-
-      #ContainerDefinitions
       ContainerDefinitions:
         - Name: !Ref ECSBackEndContainerName
           Image: !Ref ECSBackEndImageName
+          Environment:
+            - Name: DEPLOYMENT_STAGE
+              Value: production
+          # DBのENDPOINTも指定する
+          # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
+          Secrets:
+            - Name: DBINFO
+              ValueFrom: !Ref SsmDBInfo
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -115,28 +123,30 @@ Resources:
   ########################################################
   ECSBackendService:
     Type: AWS::ECS::Service
-    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
-    # DependsOn: ALBListener
     Properties:
+      #BKはサービスディスカバリを通じてFRONTとやりとりする
+      ServiceRegistries:
+        - RegistryArn: !GetAtt ServiceDiscovery.Arn
       Cluster: !Ref ECSCluster
+      EnableExecuteCommand: true # ECS-EXEC用
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
-      # ServiceRegistries:
-      #   - RegistryArn: !GetAtt ServiceDiscovery.Arn
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroup
-          ContainerPort: 80
-          ContainerName: !Ref ECSBackEndContainerName
+      # BKはALBとは直接通信しない
+      # LoadBalancers:
+      #   - TargetGroupArn: !Ref TargetGroup
+      #     ContainerPort: 80
+      #     ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
-          # ここをDISABLEDにするとECRに接続できなくなってImagePull失敗する。
-          # OR natをつけてImageをとってこれるようにする
-          AssignPublicIp: ENABLED
+          # vpc_cheap_versionの時はPublicSubnetに置くことになるのでENABLEにしておく
+          # AssignPublicIp: ENABLED
+          # もしIG/NAtがないsubnetでここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
+          AssignPublicIp: DISABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
+            - !Ref PrivateSubnetAId
+            - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition

@@ -6,18 +6,6 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /odekakekun-values/VPCId
 
-  PublicSubnetAId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
-
-  PublicSubnetCId: # 受け取る値を定義する
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
-
-  TargetGroup:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /odekakekun-values/TargetGroup
-
   #ECSCluster
   ECSClusterName:
     Type: String
@@ -58,8 +46,28 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          # TODO 適切なものを考える
-          CidrIp: 0.0.0.0/0
+          CidrIp: 10.1.10.0/24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.1.20.0/24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.1.200.0/24
+        # pribateサブネット間はpingで通信確認できるようにしておく
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.1.200.0/24
 
   ########################################################
   ###  ECS Task Execution Role
@@ -79,6 +87,26 @@ Resources:
       ManagedPolicyArns:
         # AWS側でデフォルトでついているものを利用する
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  EcsExecRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: Ecs-exec-role
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - "ssmmessages:CreateControlChannel"
+              - "ssmmessages:CreateDataChannel"
+              - "ssmmessages:OpenControlChannel"
+              - "ssmmessages:OpenDataChannel"
+              - "ssm:GetParameters"
+              - "secretsmanager:GetSecretValue"
+              - "kms:Decrypt"
+            Resource: "*"
+      Roles:
+        - Ref: ECSTaskExecutionRole
 
   # ------------------------------------------------------------#
   #  Parameter Store

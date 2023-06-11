@@ -2,7 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS FrontEnd Task & Service
 
 Parameters:
-  # 値をコンソールから受付け
   ECSFrontEndServiceName:
     Type: String
     Default: "odekakekun-frontend-service"
@@ -20,13 +19,14 @@ Parameters:
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-frontend"
 
   # SSMから取得
-  PublicSubnetAId: # 受け取る値を定義する
+  PrivateSubnetAId:
+    # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetAId
+    Default: /odekakekun-values/PrivateSubnetAId
 
-  PublicSubnetCId: # 受け取る値を定義する
+  PrivateSubnetCId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
-    Default: /odekakekun-values/PublicSubnetCId
+    Default: /odekakekun-values/PrivateSubnetCId
 
   ECSCluster:
     Type: AWS::SSM::Parameter::Value<String>
@@ -40,7 +40,7 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/TargetGroup
 
-  ECSTaskExecutionRole: # 受け取る値を定義する
+  ECSTaskExecutionRole:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /odekakekun-values/ECSTaskExecutionRole
 
@@ -49,7 +49,6 @@ Parameters:
     Default: /odekakekun-values/ECSSecurityGroupId
 
 Resources:
-  # FrontEnd
   ########################################################
   ###  ECS FrontEnd TaskDefinition
   ########################################################
@@ -57,22 +56,27 @@ Resources:
     Type: "AWS::ECS::TaskDefinition"
     Properties:
       Cpu: 512
+      # コンテナで利用するrole
+      TaskRoleArn: !Ref ECSTaskExecutionRole
+      # ecs-agent用のrole
       ExecutionRoleArn: !Ref ECSTaskExecutionRole
       Family: !Ref ECSFrontEndTaskName
+      # Memory足りない時はコンソール側からも確認出来る
       Memory: 1024
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-
-      #ContainerDefinitions
       ContainerDefinitions:
         - Name: !Ref ECSFrontEndContainerName
           Image: !Ref ECSFrontEndImageName
+          Environment:
+            - Name: REACT_APP_DEPLOYMENT_STAGE
+              Value: production
           LogConfiguration:
             LogDriver: awslogs
             Options:
               awslogs-group: !Ref ECSLogGroup
-              # AWSの既に定義されてる環境変数のようなものを引っ張ってこれる
+              # !RefはAWSの既に定義されてる変数を参照可能
               awslogs-region: !Ref "AWS::Region"
               awslogs-stream-prefix: odekakekun
           MemoryReservation: 128
@@ -86,24 +90,26 @@ Resources:
   ########################################################
   ECSFrontEndService:
     Type: AWS::ECS::Service
-    # ALBは別に切り出したので先にALBを起動させるようにStack間で依存関係をもたせたい
-    # DependsOn: ALBListener
     Properties:
       Cluster: !Ref ECSCluster
       DesiredCount: 1
       LaunchType: FARGATE
       PlatformVersion: "1.4.0"
+      EnableExecuteCommand: true
       LoadBalancers:
         - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
           ContainerName: !Ref ECSFrontEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
+          # もしIG/NAtがないsubnetでここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
+          AssignPublicIp: DISABLED
+          # vpc_cheap_versionの時はPublicSubnetに置くことになるのでENABLEにしておく
+          # AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
-            - !Ref PublicSubnetAId
-            - !Ref PublicSubnetCId
+            - !Ref PrivateSubnetAId
+            - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSFrontEndServiceName
       TaskDefinition: !Ref ECSFrontEndTaskDefinition

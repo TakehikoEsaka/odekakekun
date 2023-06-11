@@ -5,7 +5,11 @@ from sqlalchemy_utils import database_exists, drop_database
 from users.database import get_db, Base
 from users.main import app
 from fastapi.testclient import TestClient
+import os
 
+@pytest.fixture(autouse=True)
+def set_environment_variables():
+    os.environ["DEPLOYMENT_STAGE"] = "test"
 
 @pytest.fixture(scope="module")
 def SessionLocal():

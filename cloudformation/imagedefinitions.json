@@ -1,0 +1,6 @@
+[
+  {
+    "name": "odekakekun-frontend-container",
+    "imageUri": "766707448964.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-frontend"
+  }
+]

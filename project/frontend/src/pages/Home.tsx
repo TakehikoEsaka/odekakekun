@@ -32,6 +32,8 @@ export const Home = () => {
     checkLogin();
   }, []);
 
+  console.log("env is ", process.env.REACT_APP_DEPLOYMENT_STAGE);
+
   return (
     <>
       <TopView getSuggest={getSuggest} getHistories={getHistories} />

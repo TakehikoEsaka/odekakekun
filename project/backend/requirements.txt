@@ -18,3 +18,5 @@ pytest==7.3.1
 httpx==0.24.1
 pytest-timeout==2.1.0
 pandas==1.5.2
+psycopg2-binary
+sqlalchemy_utils
