@@ -49,4 +49,5 @@ jobs:
         #   # add environment variables for tests
         run: |
           cd ./project/backend
+          ls
           pytest
