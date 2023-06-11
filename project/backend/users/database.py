@@ -15,18 +15,22 @@ if DEPLOYMENT_STAGE == "development" or "test" :
     engine = create_engine("sqlite:///./db/user.db", connect_args={"check_same_thread" : False})
 
 elif DEPLOYMENT_STAGE == "production":
-    engine = create_engine("postgresql://{user}:{password}@{host}:{port}/{database}".format(**conf), connect_args={"check_same_thread" : False})
+    # TODO backendからdatabaseにテストデータを入れるスクリプトを作成して実行する
     DB_USER = os.getenv("DBINFO").username
     DB_PASSWORD = os.getenv("DBINFO").password
-
-    # TODO backendからdatabaseにテストデータを入れるスクリプトを作成して実行する
     conf ={
+        # RDSのホスト名は固定化可能
         'host':"odekakekun-db.ciqtwkmmeeo9.ap-northeast-1.rds.amazonaws.com",
         'port':'5432',
         'database':"odekakekundb",
         'user':DB_USER,
         'password':DB_PASSWORD
     }
+
+    engine = create_engine("postgresql://{user}:{password}@{host}:{port}/{database}".format(**conf), connect_args={"check_same_thread" : False})
+
+
+
 
 sessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit = False)
 
