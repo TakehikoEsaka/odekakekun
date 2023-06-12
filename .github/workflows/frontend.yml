@@ -1,0 +1,88 @@
+# TODO Dokcerの中でテストを動かすべきなのか？
+# TODO DockerのImage Buildと分けてactionファイルを管理しておく
+name: "Build Docker Image & Test"
+
+on:
+  push:
+    branches: ["main", "feature/#12"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.15
+
+      - name: Install Dependencies
+        run: |
+          yarn install
+        working-directory: ./project/frontend
+
+      - name: Build
+        run: |
+          yarn build
+        working-directory: ./project/frontend
+
+      - name: Test
+        run: |
+          yarn test
+        working-directory: ./project/frontend
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      # - name: Configure AWS credentials
+      # uses: aws-actions/configure-aws-credentials@v1
+      # with:
+      #   aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #   aws-region: ap-northeast-1
+
+      # - name: Login to ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build the Docker image
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          tags: frontend:${{ github.sha }}
+          context: project/frontend
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
