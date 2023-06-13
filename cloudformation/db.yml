@@ -71,6 +71,16 @@ Resources:
       DBSubnetGroupName: !Ref PostgresSubnetGroup
       MultiAZ: false
 
+  # TODO ここはうまく作れるかみておく
+  DatabaseSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: DBINFO
+      Description: Database Configuration
+      Type: String
+      Value:
+        { "username": !Ref DBUsername, "password": !Ref PostgresSubnetGroup }
+
       # 自動でSSMで登録されるようにしたので以下は記述不要
       # DBUsernameParameter:
       #   Type: "AWS::SSM::Parameter"
@@ -85,3 +95,9 @@ Resources:
       #     Name: /odekakekun-values/db/password
       #     Type: String
       #     Value: !Ref DBPassword
+
+Outputs:
+  DatabaseSSM:
+    Value: !Ref DatabaseSSM
+    Export:
+      Name: DatabaseSSM

@@ -30,6 +30,7 @@ Resources:
           Value: "-s3b-alb-logs"
       SecurityGroups:
         - !Ref ELBSecurityGroup
+      # subnetにはIG/Natなどinternetと通信できる環境があるsubnetを紐づける必要があり
       Subnets:
         - !Ref PublicSubnetAId
         - !Ref PublicSubnetCId
@@ -94,3 +95,8 @@ Outputs:
     Value: !Ref AlbListener
     Export:
       Name: AlbListener
+
+  ALBEndpoint:
+    Value: !Ref InternetAlb
+    Export:
+      Name: ALB-Endpoint

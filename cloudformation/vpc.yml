@@ -34,6 +34,7 @@ Metadata:
 Parameters:
   PJPrefix:
     Type: String
+    Default: "odekakekun"
 
   VPCCIDR:
     Type: String
@@ -176,7 +177,6 @@ Resources:
   # Routing
   # ------------------------------------------------------------#
   # PublicRouteA Create
-  # TODO ここのルーティングよくないので変える
   PublicRouteA:
     Type: "AWS::EC2::Route"
     Properties:
@@ -184,7 +184,6 @@ Resources:
       DestinationCidrBlock: "0.0.0.0/0"
       GatewayId: !Ref InternetGateway
 
-  # PublicRouteC Create
   PublicRouteC:
     Type: "AWS::EC2::Route"
     Properties:

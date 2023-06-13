@@ -77,7 +77,7 @@ Resources:
             - Name: REACT_APP_DEPLOYMENT_STAGE
               Value: production
             - Name: REACT_APP_ELB_ENDPOINT
-              Value: !Ref ALBEndpoint
+              Value: !ImportValue ALB-Endpoint
           LogConfiguration:
             LogDriver: awslogs
             Options:
