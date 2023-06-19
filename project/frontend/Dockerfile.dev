@@ -2,9 +2,6 @@ FROM node:16.15-alpine
 
 WORKDIR /app
 
-# ローカルに定義しているパスをコンテナ内のPATHとして追加する
-ENV PATH /app/node_modules/.bin:$PATH
-
 COPY package.json ./
 COPY yarn.lock ./
 
