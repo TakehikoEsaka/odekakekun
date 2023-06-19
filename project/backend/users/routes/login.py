@@ -20,7 +20,7 @@ logger.addHandler(handler)
 router = APIRouter()
 
 
-@router.post("/create_user", tags=["login"])
+@router.post("/api/create_user", tags=["login"])
 def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     try:
         hashed_password = Hash.bycrypt(request.password)
@@ -38,7 +38,7 @@ def create_user(request: OAuth2PasswordRequestForm = Depends(), db: Session = De
 
 
 # tokenという名前以外はつけれないので注意
-@router.post('/token', response_model=schemas.Token, tags=["login"])
+@router.post('/api/token', response_model=schemas.Token, tags=["login"])
 def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     userinfo = db.query(models.UserInfo).filter(models.UserInfo.username == request.username).first()
 
@@ -63,7 +63,7 @@ def get_token(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
 
 
 # session check
-@router.get('/login/session-check', tags=["login"])
+@router.get('/api/login/session-check', tags=["login"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
     # TODO ここをユーザー情報をつけて認証するフローを入れる。今は
     # print("request.username is : ", request.username)

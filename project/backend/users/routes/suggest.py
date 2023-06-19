@@ -12,7 +12,11 @@ from io import StringIO
 import uuid
 
 load_dotenv(Path(__file__).resolve().parent.parent.parent / Path(".env"), verbose=True)
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+
+try:
+    openai.api_key = os.environ.get("OPENAI_API_KEY").OPENAI_API_KEY
+except AttributeError:
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 router = APIRouter()
 
@@ -48,7 +52,7 @@ def ask_chatgpt(question):
         return None
 
 
-@router.post("/suggest", tags=["suggest"])
+@router.post("/api/suggest", tags=["suggest"])
 def suggest(place: str, time: str, way: str, current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
 
     question = "{}から{}以内で{}を使っていけるおすすめの場所を3つ表形式で教えて下さい。場所名・距離・説明を列にして下さい".format(place, time, way)
@@ -91,7 +95,7 @@ def suggest(place: str, time: str, way: str, current_user: models.UserInfo = Dep
     return answer
 
 
-@router.get("/get_all_suggest", tags=["suggest"])
+@router.get("/api/get_all_suggest", tags=["suggest"])
 def get_suggest(current_user: models.UserInfo = Depends(oauth2.get_current_active_user), db: Session = Depends(get_db)):
 
     if current_user:
