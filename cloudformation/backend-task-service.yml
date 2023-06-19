@@ -22,10 +22,6 @@ Parameters:
     Type: String
     Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
 
-  SsmDBInfo:
-    Type: String
-    Default: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:rds!db-40aa2f4a-a8ea-43da-b5b2-1ccad8b328df-wnfwqo"
-
   # SSMから取得
   PrivateSubnetAId:
     # SSMで受け取る側はAWSのデータ型に合わせる
@@ -103,10 +99,12 @@ Resources:
           # DBのENDPOINTも指定する
           # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
           Secrets:
-            - Name: DBINFO
-              ValueFrom: !Ref SsmDBInfo
+            - Name: DBINFOUSERNAME
+              ValueFrom: !ImportValue DatabaseSSMUsername
+            - Name: DBINFOPASSWORD
+              ValueFrom: !ImportValue DatabaseSSMPassword
             # OPEN APIのキーは固定化しておく
-            - Name: odekakekun/openai-key
+            - Name: OPENAI_API_KEY
               ValueFrom: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:odekakekun/openai-key-ZPZ7eT"
           LogConfiguration:
             LogDriver: awslogs

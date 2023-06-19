@@ -65,39 +65,35 @@ Resources:
       DBInstanceClass: db.t4g.micro
       Engine: postgres
       DBInstanceIdentifier: "odekakekun-db"
-      EngineVersion: "13.3"
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
       DBSubnetGroupName: !Ref PostgresSubnetGroup
       MultiAZ: false
 
   # TODO ここはうまく作れるかみておく
-  DatabaseSSM:
+  DatabaseSSMUsername:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: DBINFO
+      Name: DBINFO_USERNAME
       Description: Database Configuration
       Type: String
-      Value:
-        { "username": !Ref DBUsername, "password": !Ref PostgresSubnetGroup }
+      Value: !Ref DBUsername
 
-      # 自動でSSMで登録されるようにしたので以下は記述不要
-      # DBUsernameParameter:
-      #   Type: "AWS::SSM::Parameter"
-      #   Properties:
-      #     Name: /odekakekun-values/db/username
-      #     Type: String
-      #     Value: !Ref DBUsername
-
-      # DBPasswordParameter:
-      #   Type: "AWS::SSM::Parameter"
-      #   Properties:
-      #     Name: /odekakekun-values/db/password
-      #     Type: String
-      #     Value: !Ref DBPassword
+  DatabaseSSMPassword:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: DBINFO_PASSWORD
+      Description: Database Configuration
+      Type: String
+      Value: !Ref DBPassword
 
 Outputs:
-  DatabaseSSM:
-    Value: !Ref DatabaseSSM
+  DatabaseSSMUsername:
+    Value: !Ref DatabaseSSMUsername
     Export:
-      Name: DatabaseSSM
+      Name: DatabaseSSMUsername
+
+  DatabaseSSMPassword:
+    Value: !Ref DatabaseSSMPassword
+    Export:
+      Name: DatabaseSSMPassword
