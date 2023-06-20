@@ -26,8 +26,8 @@
 ## ① Infra
 
 ベース技術 ：**Github-Action・AWS・Docker**
+![image](https://github.com/TakehikoEsaka/odekakekun/assets/28090246/e748f6db-7bcb-4a95-a48d-a4dfb7a3c731)
 
-![image](https://github.com/TakehikoEsaka/odekakekun/assets/28090246/b472607b-2c53-4bd3-97f1-9b9deb9bc609)
 
 [補足]</br>
 🚶‍♂️GitHub-Action：ビルド/テスト/ECR への ImagePUSH を実施 </br>
