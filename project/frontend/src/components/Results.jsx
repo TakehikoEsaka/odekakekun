@@ -8,14 +8,7 @@ import {
   Text,
   Icon,
 } from "@chakra-ui/react";
-import {
-  FaWalking,
-  FaTrain,
-  FaBiking,
-  FaBus,
-  FaRegHandPointRight,
-  FaCarSide,
-} from "react-icons/fa";
+import { FaWalking, FaTrain, FaBiking, FaBus, FaCarSide } from "react-icons/fa";
 import { useRecoilValue } from "recoil";
 
 import { questionState } from "../store/questionState";

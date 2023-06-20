@@ -12,7 +12,6 @@ import {
   AlertIcon,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
 
 import axiosInstance from "../axios";
 

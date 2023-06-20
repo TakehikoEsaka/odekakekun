@@ -8,7 +8,7 @@ export const useLogin = () => {
       ? localStorage.getItem("access_token")
       : "None";
 
-    const response = await axiosInstance
+    await axiosInstance
       .get("/login/session-check", {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -4,7 +4,6 @@ import {
   List,
   Icon,
   ListItem,
-  UnorderedList,
   Accordion,
   AccordionItem,
   AccordionButton,
@@ -34,7 +33,7 @@ export const Histories = (props) => {
 
   // 初回レンダリング時と質問後履歴更新時の対応用
   useEffect(() => {
-    if (props.histories != undefined) {
+    if (props.histories !== undefined) {
       const newData = props.histories.reduce(
         (acc, obj) => {
           const key = obj.question_uuid;

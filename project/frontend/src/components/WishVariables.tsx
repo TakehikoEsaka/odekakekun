@@ -46,11 +46,9 @@ type PropType = {
 };
 
 export const WishVariables = (props: PropType) => {
-  const { register, handleSubmit, watch } = useForm<FormValues>();
+  const { register, handleSubmit } = useForm<FormValues>();
   const [question, setQuestion] = useRecoilState(questionState);
   const [loading, setLoading] = useRecoilState(chatGPTLoadingState);
-  // 全ての値を監視することができる
-  const watchedValue = watch();
 
   const trySuggest = async (data: FormValues) => {
     const { place, hour, way } = data;

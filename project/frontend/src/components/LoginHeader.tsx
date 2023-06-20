@@ -1,4 +1,4 @@
-import { Box, Flex, Spacer, Button, useMediaQuery } from "@chakra-ui/react";
+import { Box, Flex, Spacer, useMediaQuery } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
 export const LoginHeader = () => {

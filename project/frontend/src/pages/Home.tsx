@@ -1,6 +1,6 @@
 // 型ファイルがないと怒られる時は@typesを入れておく
 import { useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { Progress, Flex, useMediaQuery } from "@chakra-ui/react";
 
 import { TopView } from "../components/TopView";
