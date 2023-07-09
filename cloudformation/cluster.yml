@@ -59,7 +59,7 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 10.1.200.0/24
-        # pribateサブネット間はpingで通信確認できるようにしておく
+        # privateサブネット間はpingで通信確認できるようにしておく
         - IpProtocol: icmp
           FromPort: -1
           ToPort: -1

@@ -1,11 +1,20 @@
-# TODO AutoScaleを入れれたら入れておく
-# TODO RDBのセットアップ
-# TODO テンプレートをまとめる（参考：https://github.com/aws-samples/startup-kit-templates/blob/master/vpc-bastion-fargate.cfn.yml
+# TODO AutoScaleを入れる
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create ECS BackEnd Task & Service
 Parameters:
-  # 値をコンソールから受付け
+  ECSBackEndImageName:
+    Type: String
+    Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
+
+  DBUsername:
+    Type: String
+    Default: "postgres"
+
+  DBPassword:
+    Type: String
+    Default: "postgres"
+
   ECSBackEndServiceName:
     Type: String
     Default: "odekakekun-backend-service"
@@ -18,13 +27,8 @@ Parameters:
     Type: String
     Default: "odekakekun-backend-container"
 
-  ECSBackEndImageName:
-    Type: String
-    Default: "xxxxxxxxxxxx.dkr.ecr.ap-northeast-1.amazonaws.com/odekakekun-backend"
-
   # SSMから取得
   PrivateSubnetAId:
-    # SSMで受け取る側はAWSのデータ型に合わせる
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PrivateSubnetAId
 
@@ -96,13 +100,11 @@ Resources:
           Environment:
             - Name: DEPLOYMENT_STAGE
               Value: production
-          # DBのENDPOINTも指定する
-          # 参考：https://docs.aws.amazon.com/ja_jp/AWSCloudFormation/latest/UserGuide/aws-properties-rds-dbinstance-endpoint.html
           Secrets:
             - Name: DBINFOUSERNAME
-              ValueFrom: !ImportValue DatabaseSSMUsername
+              ValueFrom: !Ref DatabaseSSMUsername
             - Name: DBINFOPASSWORD
-              ValueFrom: !ImportValue DatabaseSSMPassword
+              ValueFrom: !Ref DatabaseSSMPassword
             # OPEN APIのキーは固定化しておく
             - Name: OPENAI_API_KEY
               ValueFrom: "arn:aws:secretsmanager:ap-northeast-1:766707448964:secret:odekakekun/openai-key-ZPZ7eT"
@@ -140,10 +142,8 @@ Resources:
       #     ContainerName: !Ref ECSBackEndContainerName
       NetworkConfiguration:
         AwsvpcConfiguration:
-          # vpc_cheap_versionの時はPublicSubnetに置くことになるのでENABLEにしておく
-          # AssignPublicIp: ENABLED
           # もしIG/NAtがないsubnetでここをDISABLEDにするとECRに接続できなくなってImagePull失敗する
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           SecurityGroups:
             - !Ref ECSSecurityGroupId
           Subnets:
@@ -151,3 +151,65 @@ Resources:
             - !Ref PrivateSubnetCId
       ServiceName: !Ref ECSBackEndServiceName
       TaskDefinition: !Ref ECSBackEndTaskDefinition
+
+  ########################################################
+  ###  Postgres Database
+  ########################################################
+  PostgresSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS Security Group
+      VpcId: !Ref VpcId
+      GroupName: rds-security-group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.1.100.0/24
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.1.200.0/24
+
+  # DBのSubnetGroupはAZが違う所を入れておくことで冗長性を担保
+  PostgresSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Sub "Database subnet group"
+      SubnetIds:
+        - !Ref PrivateSubnetAId
+        - !Ref PrivateSubnetCId
+
+  PostgresDB:
+    Type: AWS::RDS::DBInstance
+    DependsOn:
+      - PostgresSG
+      - PostgresSubnetGroup
+    Properties:
+      DBName: "odekakekundb"
+      VPCSecurityGroups:
+        - !Ref PostgresSG
+      AllocatedStorage: "20"
+      DBInstanceClass: db.t4g.micro
+      Engine: postgres
+      DBInstanceIdentifier: "odekakekun-db"
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBSubnetGroupName: !Ref PostgresSubnetGroup
+      MultiAZ: false
+
+  DatabaseSSMUsername:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: DBINFO_USERNAME
+      Description: Database Configuration
+      Type: String
+      Value: !Ref DBUsername
+
+  DatabaseSSMPassword:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: DBINFO_PASSWORD
+      Description: Database Configuration
+      Type: String
+      Value: !Ref DBPassword
