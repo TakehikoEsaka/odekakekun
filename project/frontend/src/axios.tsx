@@ -5,5 +5,4 @@ const instance = Axios.create({
 });
 
 console.log("base URL is", process.env.REACT_APP_API_ENDPOINT + "/api");
-console.log("target URL is", process.env.REACT_APP_PROXY_ENDPOINT);
 export default instance;
