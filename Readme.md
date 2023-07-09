@@ -51,15 +51,3 @@ TODO ：ここにネットワーク構成図
 
 [補足]</br>
 🚶‍♂️Pytest：テスト実施の為に導入</br>
-
-# TODO
-
-- PostgresDB とのデータやりとり確認
-- サービスディスカバリを使ったコンテナ間通信
-- Pytest が通るようにする
-- SSL 対応
-- CI：Github Actions から ECR への Image PUSH まわり
-
-- Python の DRY 原則への対応
-- CD：CodePipeline をできたら入れる（https://qiita.com/YutaSaito1991/items/1a001f0e19e9de033612）
-- TS 系を整える
