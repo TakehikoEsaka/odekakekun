@@ -26,8 +26,7 @@
 ## ① Infra
 
 ベース技術 ：**Github-Action・AWS・Docker**
-
-TODO ：ここにネットワーク構成図
+![image](https://github.com/TakehikoEsaka/odekakekun/assets/28090246/e748f6db-7bcb-4a95-a48d-a4dfb7a3c731)
 
 [補足]</br>
 🚶‍♂️GitHub-Action：ビルド/テスト/ECR への ImagePUSH を実施 </br>
