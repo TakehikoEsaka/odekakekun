@@ -14,6 +14,21 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Subnet::Id>
     Default: /odekakekun-values/PublicSubnetCId
 
+  HostZoneId:
+    Description: FQDN of the hosted zone
+    Type: String
+    Default: "Z0xxx"
+
+  DomainName:
+    Description: FQDN of the HostZone
+    Type: String
+    Default: "chopprin.link"
+
+  SubDomain:
+    Description: FQDN of the certificate
+    Type: String
+    Default: "odekakekun.chopprin.link"
+
 Resources:
   ########################################################
   ###  Internet ALB
@@ -35,16 +50,37 @@ Resources:
         - !Ref PublicSubnetAId
         - !Ref PublicSubnetCId
 
-  AlbListener:
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
+  ALBListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref ACM
       DefaultActions:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward
       LoadBalancerArn: !Ref InternetAlb
-      # TODO HTTPS対応
-      Port: 80
-      Protocol: HTTP
+
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostZoneId
+      Comment: "DNS for ALB"
+      Name: !Ref SubDomain
+      Type: A
+      AliasTarget:
+        HostedZoneId: !GetAtt "InternetAlb.CanonicalHostedZoneID"
+        DNSName: !GetAtt "InternetAlb.DNSName"
+
+  ACM:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref SubDomain
+      DomainValidationOptions:
+        - DomainName: !Ref SubDomain
+          HostedZoneId: !Ref HostZoneId
+      ValidationMethod: DNS
 
   ########################################################
   ###  Target Group
@@ -69,10 +105,8 @@ Resources:
       GroupName: elb-security-group
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          # TODO ここは自分がアクセスするIPだけに絞っておきたい
-          # TODO SSL化対応しておけたらやっておく
+          FromPort: "443"
+          ToPort: "443"
           CidrIp: 0.0.0.0/0
 
   ########################################################
@@ -90,13 +124,3 @@ Outputs:
     Value: !Ref TargetGroup
     Export:
       Name: TargetGroup
-
-  AlbListener:
-    Value: !Ref AlbListener
-    Export:
-      Name: AlbListener
-
-  ALBEndpoint:
-    Value: !Ref InternetAlb
-    Export:
-      Name: ALB-Endpoint
