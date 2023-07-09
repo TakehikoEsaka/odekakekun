@@ -6,6 +6,7 @@ from users import models
 from users.database import get_db
 from users import oauth2
 import os
+import json
 from dotenv import load_dotenv
 import openai
 from io import StringIO
@@ -14,7 +15,7 @@ import uuid
 load_dotenv(Path(__file__).resolve().parent.parent.parent / Path(".env"), verbose=True)
 
 try:
-    openai.api_key = os.environ.get("OPENAI_API_KEY").OPENAI_API_KEY
+    openai.api_key = json.loads(os.environ.get("OPENAI_API_KEY"))["OPENAI_API_KEY"]
 except AttributeError:
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 

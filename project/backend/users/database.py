@@ -17,8 +17,8 @@ if DEPLOYMENT_STAGE == "development" or "test":
 
 elif DEPLOYMENT_STAGE == "production":
     # TODO backendからdatabaseにテストデータを入れるスクリプトを作成して実行する
-    DB_USER = os.getenv("DBINFO").username
-    DB_PASSWORD = os.getenv("DBINFO").password
+    DB_USER = os.getenv("DBINFOUSERNAME")
+    DB_PASSWORD = os.getenv("DBINFOPASSWORD")
     conf = {
         # RDSのホスト名は固定化可能
         'host': "odekakekun-db.ciqtwkmmeeo9.ap-northeast-1.rds.amazonaws.com",
