@@ -14,8 +14,9 @@ services:
       - ./project/frontend/:/app/
     ports:
       - 3000:80
+    # localで動かす時はbuildをしないのでこれをつける
     env_file:
-      - ./project/frontend/frontend.env
+      - ./project/frontend/.env.development
     # command: /bin/sh -c "while :; do sleep 10; done"
 
   backend:

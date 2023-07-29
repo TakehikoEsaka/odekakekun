@@ -13,8 +13,7 @@ RUN yarn install --production
 # Copying all the files in our project
 COPY . .
 
-# COPY ./frontend.env.local ./.env
-COPY ./frontend.env.prod ./.env
+COPY ./.env.production ./.env
 
 # Building our application
 RUN yarn build
