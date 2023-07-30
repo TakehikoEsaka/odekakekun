@@ -16,7 +16,7 @@ load_dotenv(Path(__file__).resolve().parent.parent.parent / Path(".env"), verbos
 
 try:
     openai.api_key = json.loads(os.environ.get("OPENAI_API_KEY"))["OPENAI_API_KEY"]
-except AttributeError:
+except:
     openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 router = APIRouter()
