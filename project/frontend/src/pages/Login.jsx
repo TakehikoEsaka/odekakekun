@@ -16,8 +16,8 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axios";
 
 export const Login = () => {
-  const [email, setEmail] = useState("testuser@gmail.com");
-  const [password, setPassword] = useState("testpass");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [redirectTo, setRedirectTo] = useState(null);

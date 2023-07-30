@@ -26,11 +26,7 @@ export const useSuggest = () => {
         timeout: 60000, // タイムアウト時間をミリ秒で指定
       })
       .then((res) => {
-        console.log("res.data is ", res.data);
-
         if (res.data === null) {
-          console.log("response is null !");
-
           // ASK message以外はdefault値を使おうと思っているが、その場合も記載は必要なのか？
           setSuggest({
             message: "エラーがおきました。もう一度やり直してください",

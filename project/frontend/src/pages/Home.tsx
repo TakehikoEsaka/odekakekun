@@ -26,14 +26,11 @@ export const Home = () => {
       await getcheckLogin();
 
       // 非同期処理は並列関係にあるものに対してかかる。この場合以下のconsole.logはcheckLogin変数定義の外に書いた場合はconsole.logがgetcheckLoginよりも先に実行されることもあったので注意
-      console.log("checked result is ", localStorage.getItem("login_state"));
+      // console.log("checked result is ", localStorage.getItem("login_state"));
     };
 
     checkLogin();
   }, []);
-
-  console.log("env is ", process.env.REACT_APP_DEPLOYMENT_STAGE);
-
   return (
     <>
       <TopView getSuggest={getSuggest} getHistories={getHistories} />

@@ -15,13 +15,13 @@ export const useLogin = () => {
         },
       })
       .then(() => {
-        console.log("authorized !");
+        console.log("you are logged in !");
         localStorage.setItem("login_state", "true");
       })
       .catch((error) => {
-        console.log("unauthorized !");
+        console.log("you are not logged in !");
         localStorage.setItem("login_state", null);
-        console.log("error is ", error);
+        // console.log("error is ", error);
       });
   };
 

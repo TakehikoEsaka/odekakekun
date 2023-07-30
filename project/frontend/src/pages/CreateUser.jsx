@@ -15,8 +15,8 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axios";
 
 export const CreateUser = () => {
-  const [email, setEmail] = useState("testuser@gmail.com");
-  const [password, setPassword] = useState("testpass");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,14 +40,22 @@ export const CreateUser = () => {
       setError("パスワードが一致しません");
     } else {
       try {
-        const response = await axiosInstance
+        const create_res = await axiosInstance
           .post("/create_user", formData)
           .catch((error) => {
             setError("既にアカウントが存在しています");
           });
-        localStorage.setItem("access_token", response.data.access_token);
-        localStorage.setItem("login_state", "true");
-        setRedirectTo("/home");
+
+        if (create_res && create_res.status === 200) {
+          const login_res = await axiosInstance
+            .post("/token", formData)
+            .catch((error) => {
+              setError("ホーム画面からログインをしてください");
+            });
+          localStorage.setItem("access_token", login_res.data.access_token);
+          localStorage.setItem("login_state", "true");
+          setRedirectTo("/home");
+        }
       } catch (e) {
         console.log(e);
       }
@@ -90,7 +98,7 @@ export const CreateUser = () => {
               <FormLabel>パスワード(確認)</FormLabel>
               <Input
                 type="password"
-                placeholder="********"
+                placeholder=""
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />

@@ -87,9 +87,6 @@ export const Histories = (props) => {
     }
   };
 
-  // console.log("props.histories :", props.histories);
-  console.log("groupedData is :", groupedData);
-
   return (
     <Flex justifyContent="cloumn" p={6} flexDirection="column">
       <Accordion>
