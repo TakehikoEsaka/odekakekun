@@ -22,7 +22,7 @@
 # 個人的に頑張った点
 - CloudFormationで全てのAWS環境を立ち上げ
   - CI部分以外は、コンソールは1つも触らずに環境を構築しました
-  - FrontとBackendのコンテナを分けてService Discoveryで通信を実現しています
+  - FrontとBackendのDockerコンテナを分けてService Discoveryで通信を実現しています
 - Reactの導入（業務経験がなかった為独学で進めました）　
 
 # 作業途中の点
